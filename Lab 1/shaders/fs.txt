@@ -1,0 +1,65 @@
+
+in vec3 v_normal;
+in vec3 v_worldPos;
+in vec2 v_texcoord;
+out vec4 color;
+
+layout(binding=0) uniform sampler2DArray diffuseTexture;
+layout(binding=1) uniform sampler2DArray emissionTexture;
+
+void main(){
+    
+    
+    vec3 N = normalize(v_normal);
+    vec3 V = normalize(eyePos - v_worldPos);
+    
+    vec3 totalDiffuseColor=vec3(0.0);
+    vec3 totalSpecularColor=vec3(0.0);
+    for(int i=0;i<NUM_LIGHTS;++i){
+        float positionalOrDirectional = lightPositions[i].w;
+        vec3 lightPos = lightPositions[i].xyz;
+        vec3 spotDir = spotlightDirections[i].xyz;
+        float cosineMaxSpotAngle = spotlightDirections[i].w;
+        vec3 lightColor = lightColors[i].xyz;
+        float cosineSpotFadeAngle = lightColors[i].w;	
+        vec3 L = lightPos - positionalOrDirectional * v_worldPos;
+        float lightDistance = length(L);
+        L = 1.0/lightDistance * L;
+
+
+        float diffusePct = max( 0.0, dot(L,N) );
+        
+        float specPct = 0.0;
+        if( diffusePct > 0.0 ){
+            vec3 R = reflect(-L,N);
+            specPct = max(0.0, dot(V,R) );
+            specPct = pow( specPct, 64.0 );
+        }
+        
+        float spotDot = dot(-L, spotDir );
+        float spotF = clamp( (spotDot - cosineMaxSpotAngle) / (cosineSpotFadeAngle - cosineMaxSpotAngle), 0.0, 1.0 );
+        
+        diffusePct *= spotF;
+        specPct *= spotF;
+    
+        if( positionalOrDirectional == 1.0 ){
+            float att = 1.0 / (attenuation[0] + lightDistance*(attenuation[1] + lightDistance*attenuation[2]));
+            att = clamp(att, 0.0, 1.0 );
+            diffusePct *= att;
+            specPct *= att;
+        }
+        
+        totalDiffuseColor += diffusePct * lightColor;
+        totalSpecularColor += specPct * lightColor;
+        
+    }
+    
+    vec4 diffuseTextureColor = texture( diffuseTexture, vec3(v_texcoord,sliceNumber) );
+    vec4 emissionTextureColor = texture( emissionTexture, vec3(v_texcoord,sliceNumber) );
+    color.rgb = 0.1 * diffuseTextureColor.rgb +
+              totalDiffuseColor * diffuseTextureColor.rgb  + 
+              totalSpecularColor * diffuseTextureColor.rgb +	//optional: multiply specular by texColor
+              emissionTextureColor.rgb;
+              
+    color.a = diffuseTextureColor.a;
+}

@@ -1,0 +1,680 @@
+<HTML>
+<HEAD>
+
+<meta charset='utf-8'>
+
+
+<style id='xstyle'>
+</style>
+
+<BODY>
+  
+<div style='float:right'>
+  <canvas style='border: 2px solid fuchsia' id="viewcvs" width=2 height=2
+    onclick='clickCanvas(event)'
+    onmousedown='mouseDownCanvas(event)'
+    onmouseup='mouseUpCanvas(event)'
+    onmousemove='mouseMoveCanvas(event)'
+></canvas>
+</div>
+  
+<table>
+<tr><td>Font:<td><input type=file id='fontfile' onchange='main()'>
+<tr><td>Style:
+<td><select id="style">
+    <option name="plain">Plain</option>
+    <option name="bold">Bold</option>
+    <option name="italic">Italic</option>
+    <option name="bold italic">Bold Italic</option>
+</select>
+<tr><td>Size:<td><input id="size" value="10" size=4 onchange='main()'>
+<tr><td>X Offset:<td><input id="xoffset" size=4 value="0" onchange='main()'>
+<tr><td>Y Padding:<td><input id="ypadding" size=4 value="2" onchange='main()'>
+<tr><td>Y Offset:<td><input id="yoffset" size=4 value="0" onchange='main()'>
+<tr><td>Bilevel:<td><input type=checkbox id=bilevel>
+<tr><td>Kerning:<td><input id="kerning" size=4 value="0" onchange='main()'>
+<tr style='display:none'><td>View scale:<td><input id="viewscale" type=range value=0 min=0 max=7 onchange='drawZoomCanvas()'>
+
+<tr><td colspan=2><button onclick="main()">Do it</button><br>
+
+
+</table>
+
+
+<div>Click to edit pixels</div>
+
+<div style='display:none'>
+<textarea style='float:left' id='metrics' rows=5 cols=20></textarea>
+</div>
+
+<div>
+<canvas style='display:none' id="cvs" width=2 height=2></canvas>
+</div>
+<div>
+<textarea id='ccode' rows=40 cols=150></textarea>
+</div>
+
+<script>
+"use strict";
+
+var FIRST=0;
+var LAST=127;
+var NUM = LAST-FIRST+1;
+
+//(x,y,w)
+var charmetrics=[];
+
+//max width/height of any character
+var maxw=0;
+var maxh=0;
+
+//from TT file
+var metadata;
+var fontName;
+
+//change x,y pixel values into texture s,t coordinates.
+//Right now a no-op
+function TX(x){
+    return x;
+}
+function TY(y){
+    return y;
+}
+     
+     
+function main(){
+    var font = document.getElementById("fontfile");
+    font = font.files[0];
+    if(!font){
+        return;
+        //measure_widths();
+        //measure_height();
+        //compute_image_size();
+        //drawchars(maxw,maxh);
+        //return;
+    }
+    
+    fontName = font.name;
+    
+    var fr = new FileReader();
+    fr.onload = function(){
+        var fdata = fr.result;
+        var x = document.getElementById("xstyle");
+        if(!x){
+            console.log("No style");
+            return;
+        }
+            
+        var L=[
+          "@font-face{",
+          "  font-family: xPro;",
+          "  src: url('"+fdata+"');",
+        "}"]
+        x.innerHTML=L.join("\n");
+        measure_widths()
+        measure_height();
+        compute_image_size();
+        
+        var yoffset = parseInt(document.getElementById("yoffset").value,10);
+        drawchars(maxw,maxh,yoffset)
+        if( document.getElementById("bilevel").checked ){
+            unantialias();
+        }
+        drawgrid();
+        drawZoomCanvas();
+            
+        var fr2 = new FileReader();
+        fr2.onload = function(){
+            metadata = parse_tt_file(fr2.result);
+            compute_c_header(fontName,metadata);
+        }
+        fr2.readAsArrayBuffer(font);
+
+        
+    }
+    fr.readAsDataURL(font);
+}
+
+var mouseIsDown;
+var currColor;
+var cvs2 = document.getElementById("viewcvs");
+var ctx2 = cvs2.getContext("2d");
+
+function mouseDownCanvas(ev){
+    mouseIsDown=true;
+    var tmp = translateCoords(cvs2,ev);
+    var x = tmp[0];
+    var y = tmp[1];
+    
+    var I = ctx2.getImageData(x,y,1,1);
+    var v;
+    if( I.data[0] < 128 ){
+        //console.log("set",I.data);
+        currColor=255;
+    }
+    else{
+        console.log("clear");
+        currColor=0;
+    }
+}
+function mouseUpCanvas(ev){
+    mouseIsDown=false;
+    compute_c_header(fontName,metadata);
+
+}
+function mouseMoveCanvas(ev){
+    if( !mouseIsDown )
+        return;
+    clickCanvas(ev);
+}
+
+function translateCoords(cvs2,ev){
+    var zf = (1 << document.getElementById("viewscale").value);
+    var R = cvs2.getBoundingClientRect();
+    var x = ev.clientX - R.left;
+    var y = ev.clientY - R.top;
+    x -= 2;
+    y -= 2;
+    x = zf * (Math.floor(x/zf));
+    y = zf * (Math.floor(y/zf));
+    return [x,y];
+}
+
+function clickCanvas(ev){
+    var zf = (1 << document.getElementById("viewscale").value);
+    
+    var tmp = translateCoords(cvs2,ev);
+    var x = tmp[0];
+    var y = tmp[1];
+    
+    var I = ctx2.createImageData(zf,zf);
+    for(var i=0;i<I.data.length;i+=4){
+        I.data[i] = I.data[i+1] = I.data[i+2] = currColor;
+        I.data[i+3] = 255;
+    }
+    ctx2.putImageData(I,x,y);
+    var cvs = document.getElementById("cvs");
+    var ctx = cvs.getContext("2d");
+    x = Math.floor(x / zf);
+    y = Math.floor(y / zf);
+    var I1 = ctx.createImageData(1,1);
+    I1.data[0] = I1.data[1] = I1.data[2] = currColor;
+    I1.data[3] = 255;
+    ctx.putImageData(I1,x,y);
+}
+
+function drawZoomCanvas(){
+    var cvs = document.getElementById("cvs");
+    var ctx = cvs.getContext("2d");
+    var zf = (1 << document.getElementById("viewscale").value);
+    console.log(zf);
+    var cvs2 = document.getElementById("viewcvs");
+    cvs2.width = zf*cvs.width;
+    cvs2.height = zf*cvs.height;
+    var ctx2 = cvs2.getContext("2d");
+    var idata = ctx.getImageData(0,0,cvs.width,cvs.height);
+    var idata2 = ctx2.createImageData(cvs2.width,cvs2.height);
+    
+    var i2=0;
+    for(var y=0;y<cvs.height;++y){
+        for(var yy = 0; yy<zf;++yy){
+            var i1 = y*cvs.width*4;
+            for(var x=0;x<cvs.width;++x){
+                var r = idata.data[i1++];
+                var g = idata.data[i1++];
+                var b = idata.data[i1++];
+                var a = idata.data[i1++];
+                for(var xx=0;xx<zf;++xx){
+                    idata2.data[i2++] = r;
+                    idata2.data[i2++] = g;
+                    idata2.data[i2++] = b;
+                    idata2.data[i2++] = a;
+                }
+            }
+        }
+    }
+    
+    ctx2.putImageData(idata2,0,0);
+}
+
+function unantialias(){
+    var cvs = document.getElementById("cvs");
+    var ctx = cvs.getContext("2d");
+    var idata = ctx.getImageData(0,0,cvs.width,cvs.height);
+    for(var i=0;i<idata.data.length;i+=4){
+        if( idata.data[i] > 128 )
+            idata.data[i]=idata.data[i+1]=idata.data[i+2]=255;
+        else
+            idata.data[i]=idata.data[i+1]=idata.data[i+2]=0;
+    }
+    ctx.putImageData(idata,0,0);
+}
+
+function compute_c_header(fontname, meta){
+    
+    var cvs = document.getElementById("cvs");
+    var ctx = cvs.getContext("2d");
+   
+   
+    //if antialiasing is suppressed, we output
+    //a bitmask, one integer (or short or char) per row with each bit
+    //representing a single pixel. Note that this restricts a character
+    //to a width of no more than 64 pixels.
+    //if antialiasing is enabled, we output one byte
+    //per pixel.
+    
+    let bilevel = document.getElementById("bilevel").checked;
+    let maskstr = "0";
+    
+    if( bilevel ){
+        let mask = [1];
+        for(var i=0;i<maxw-1;++i)
+            mask.push(0);
+        while(mask.length % 4 )
+            mask.unshift(0);
+        maskstr="0x";
+        for(var i=0;i<mask.length;i+=4){
+            let tmp = mask[i]*8+mask[i+1]*4+mask[i+2]*2+mask[i+3];
+            maskstr += tmp.toString(16);
+        }
+    }
+
+    //~ let varname = fontname;
+    //~ let rex = /\.(otf|ttf|woff)$/
+    //~ varname = varname.replace(rex,"");
+    
+    let L = [
+        "//"+fontname,
+        "//Style: "+document.getElementById('style').value,
+        "//Size: "+document.getElementById("size").value,
+        "//X offset: "+document.getElementById("xoffset").value,
+        "//Y padding: "+document.getElementById("ypadding").value,
+        "//Y offset: "+document.getElementById("yoffset").value,
+        "//Bilevel: "+document.getElementById("bilevel").checked,
+        "//Kerning: "+document.getElementById("kerning").value,
+        "/*",
+        meta.replace(/\*\//g,""),
+        "*/",
+        "const unsigned MAXWIDTH = "+maxw+";",
+        "const unsigned MAXHEIGHT = "+maxh+";",
+        "const unsigned MASK = "+maskstr+";",
+        "const unsigned FIRST = "+FIRST+";",
+        "const unsigned LAST = "+LAST+";"
+    ];
+    
+    
+     
+    let ctype;
+    
+    if( bilevel ){
+        if( maxw <= 8 )
+            ctype = "unsigned char";
+        else if( maxw <= 16 )
+            ctype = "unsigned short";
+        else if( maxw <= 32 )
+            ctype = "unsigned int";
+        else if( maxw <= 64 )
+            ctype = "unsigned long long";
+        else{
+            document.getElementById("ccode").value = "Too big";
+            return;
+        }
+        
+        //list of font data
+        L.push(
+            ctype+" chardata["+(LAST+1)+"]["+maxh+"] = {"
+        );
+        
+    } else {
+        ctype = "const unsigned char";
+        L.push(
+            ctype+" chardata["+(LAST+1)+"]["+maxh+"]["+maxw+"] = {"
+        );
+        
+    }
+    
+ 
+    
+    for(var i=0;i<=LAST;++i){
+        
+        let chardata;           //image data for one character
+        let realWidth;
+        if( i < FIRST ){
+            //out of range; use all black
+            chardata = {
+                width: maxw, height: maxh, data: new Uint8Array(w*4*h)    
+            };
+            realWidth = 0;
+        } else {
+            let tmp = charmetrics[i];
+            let sx,sy,w,h;
+            sx = charmetrics[i][0];
+            sy = charmetrics[i][1];
+            w = maxw;
+            h = maxh;
+            chardata = ctx.getImageData(sx,sy,w,h);
+            realWidth = charmetrics[i][2];
+        }
+        
+        
+        L.push("  {     //character "+ ((i>=32 && i <127) ? String.fromCharCode(i):"") +" ("+i+") width="+realWidth);
+
+        //can't use ints because we might have 64 bits...
+        for(let y=0;y<chardata.height;++y){
+            
+            let value = [];     //value for array
+            let rep = "";       //comment: "visual" representation for readers of source code
+            
+            for(var x=0;x<chardata.width;++x){
+                let idx = y*4*chardata.width+x*4;
+                let r = chardata.data[idx];
+                
+                if( r > 128 )
+                    rep += "#";
+                else
+                    rep += ".";
+                
+                if( bilevel ){
+                    if( r > 128 )
+                        value.push(1);
+                    else
+                        value.push(0);
+                } else {
+                    value.push(r);
+                }
+            }
+            
+            let v;
+            
+            if( bilevel ){
+                //convert list of bit values to hexadecimal integer
+                
+                //pad to correct number of nibbles
+                while(value.length % 4 != 0 )
+                    value.unshift(0);
+            
+                v = "0x";
+                for(var q=0;q<value.length;q+=4){
+                    let qq = 8*value[q]+4*value[q+1]+2*value[q+2]+value[q+3];
+                    v += qq.toString(16);
+                }
+            } else {
+                v = [];
+                value.forEach( (x) => {
+                    let ss = x.toString(16);
+                    if( ss.length === 1 )
+                        ss = "0x0"+ss;
+                    else if( ss.length === 2 )
+                        ss = "0x"+ss;
+                    else
+                        throw new Error("?");
+                    v.push(ss);
+                });
+                v = "{" + v.join(",") + "}";
+            }
+            
+            if( y < chardata.height-1 )
+                v += ",";
+            while(v.length < 40)
+                v += " ";
+            v += "//";
+            v += rep;
+            
+            L.push("        "+v);
+        }
+        L.push("    }" + ( (i<LAST) ? ",":"") )
+    }
+    
+    L.push("};")
+    
+    //the real character widths
+    L.push("unsigned widths[] = {")
+    let tmp = [];
+    for(let i=0;i<=LAST;++i){
+        if( i < FIRST )
+            tmp.push("0");
+        else{
+            let cm = charmetrics[i];
+            tmp.push(""+cm[2]);
+        }
+    }
+
+    let tmp2 = [];
+    for(let i=0;i<tmp.length;i+=16){
+        tmp2.push( tmp.slice(i,i+16).join(", "));
+    }
+    L.push( tmp2.join(",\n") );
+    L.push("};")
+    
+    document.getElementById("ccode").value=L.join("\n");
+}
+    
+    
+    
+    
+    
+    
+function drawgrid(){
+    var cvs = document.getElementById("cvs");
+    var ctx = cvs.getContext("2d");
+//    ctx.strokeStyle = "#204080";
+    ctx.strokeStyle = "#004080";
+    ctx.beginPath();
+    for(var x=0;x<cvs.width;x+=maxw){
+        ctx.moveTo(x-0.5,0);
+        ctx.lineTo(x-0.5,cvs.height);
+    }
+    for(var y=0;y<cvs.height;y+=maxh){
+        ctx.moveTo(0,y-0.5);
+        ctx.lineTo(cvs.width,y-0.5);
+    }
+    ctx.stroke();
+}
+
+function measure_height(){
+    var cvs = document.getElementById("cvs");
+    var size = parseInt(document.getElementById("size").value);
+    cvs.width=200;
+    
+    var dbg=0;
+    
+    for( cvs.height=size ; cvs.height < 200; cvs.height += 1 + Math.floor(cvs.height*0.1)){
+        drawchars(0,0,0);
+        
+        var ctx = cvs.getContext("2d");
+        var id = ctx.getImageData(0,0,cvs.width,cvs.height);
+        var i = (id.height-1)*id.width*4;
+        var j = i + id.width*4;
+        var flag=true;
+        for( ;i<j;++i){
+            if( (i+1)%4 !== 0 && id.data[i] !== 0 ){
+                flag=false;
+                break;
+            }
+        }
+        
+            
+        if( flag ){
+            //this is an acceptable height
+            console.log("Detected height of",cvs.height);
+            var p = document.getElementById("ypadding").value;
+            p=parseInt(p,10);
+            maxh=cvs.height+p;
+            return;
+        }
+    }
+    
+    console.log("Giving up");
+    maxh = parseInt( document.getElementById("padding").value,10) ;
+}
+    
+        
+
+function set_font(){
+    var style= document.getElementById("style").value;
+    var size = parseInt(document.getElementById("size").value);
+    var family="xPro";
+    if( style === "Plain" )
+        style="";
+        
+    var cvs = document.getElementById("cvs");
+    var ctx = cvs.getContext("2d");
+    ctx.font = style+" "+size+"pt "+family;
+}
+
+
+function measure_widths(X){
+    var cvs = document.getElementById("cvs");
+    var ctx = cvs.getContext("2d");
+    var ta = document.getElementById("metrics");
+    var kerning = parseInt(document.getElementById("kerning").value,10);
+
+    set_font();
+    
+    charmetrics=[];
+    maxw=-1;
+    for(var i=0;i<256;++i){
+        if( i >= FIRST && i <= LAST  ){
+            //measure string consisting of character i
+            var s = String.fromCharCode(i);
+            var w = ctx.measureText(s).width;
+            w += kerning;
+            charmetrics[i]=[-1,-1,w];
+            if( w > maxw )
+                maxw=w;
+        }
+    }
+    maxw = Math.floor(maxw);
+    maxw += 2;
+    return;
+}
+
+function compute_image_size(){
+    //how large should the image be?
+    
+    var imgw = 32;
+    var imgh = 32;
+    while(1){
+        var ncpr = Math.floor(imgw / maxw);     //num chars per row
+        var nr = Math.floor((LAST-FIRST) / ncpr + 1);   //num rows required
+        var maxr = Math.floor(imgh / maxh);     //max rows we can fit
+        if( maxr < nr ){
+            if( imgw <= imgh )
+                imgw *= 2;
+            else
+                imgh *= 2;
+        }
+        else{
+            break;
+        }
+    }
+    
+    cvs.width = imgw;
+    cvs.height = imgh;
+}
+
+function drawchars(advancex,advancey,yoffset){
+    var cvs = document.getElementById("cvs");
+    var ctx=cvs.getContext("2d");
+    var xoffset = parseInt(document.getElementById("xoffset").value,10)
+    ctx.fillStyle="rgb(0,0,0)";
+    ctx.fillRect(0,0,cvs.width,cvs.height);
+    ctx.fillStyle="rgb(255,255,255)"; 
+    ctx.textBaseline="top";
+    set_font();
+    var cx=0;
+    var cy=0;
+    for(var i=0;i<256;++i){
+        if( i >= FIRST && i <= LAST ){
+            ctx.fillText( String.fromCharCode(i) , cx+xoffset, cy+yoffset );
+            charmetrics[i][0]=cx;
+            charmetrics[i][1]=cy;
+            cx += advancex;
+            if( cx + advancex >= cvs.width ){
+                cx=0;
+                cy+=advancey;
+            }
+        }
+    }
+            
+    var ta = document.getElementById("metrics");
+    ta.value="";
+    for(var i=FIRST;i<LAST;++i){
+        ta.value += ""+i+" "+charmetrics[i][0]+
+            " "+charmetrics[i][1]+
+            " "+charmetrics[i][2]+
+            " "+maxh+"\n";
+    }
+}
+
+function unpack_from(fmt,dat,offset){
+    if( fmt === ">I" ){
+        return (dat[offset] << 24) | (dat[offset+1] << 16) | (dat[offset+2] << 8) | dat[offset+3];
+    } else if( fmt === ">H"){
+        return (dat[offset] << 8) | (dat[offset+1] ); 
+    }
+    throw new Error(fmt);
+}
+function parse_tt_file(dat1){
+    var dat = new Uint8Array(dat1);
+    var sig = unpack_from(">I",dat,0)
+    var numtables = unpack_from(">H",dat,4)
+    var offs= 12
+    var meta = [];
+    
+    for(var i=0;i<numtables;++i){
+        var tag = unpack_from(">I",dat,offs);
+        var start = unpack_from(">I",dat,offs+8);
+        var length = unpack_from(">I",dat,offs+12);
+        offs += 16;
+        //'name'
+        if(tag == 0x6e616d65 ){
+            var offs = start
+            var fmt = unpack_from(">H",dat,offs)
+            var count = unpack_from(">H",dat,offs+2)
+            var soffs = unpack_from(">H",dat,offs+4)
+            offs += 6;
+            for(var i=0;i<count;++i){
+                var nameid = unpack_from(">H",dat,offs+6)
+                var platform = unpack_from(">H",dat,offs)
+                var psid = unpack_from(">H",dat,offs+2)
+                var langid = unpack_from(">H",dat,offs+4)
+                if( (
+                        (nameid >= 0 && nameid <= 4) ||
+                        (nameid >= 7 && nameid <= 14)
+                    ) &&
+                    langid == 0 ){
+
+                    var nslength = unpack_from(">H",dat,offs+8);
+                    var nsoffset = unpack_from(">H",dat,offs+10);
+                        
+                    if(psid == 0){
+                        var si = start+soffs+nsoffset
+                        var d = [];
+                        for(var j=si;j<si+nslength;++j){
+                            if( dat[j] >= 32 && dat[j] < 127 )
+                                d.push(String.fromCharCode(dat[j]));
+                        }
+                        //decode as utf_16_be ?
+                        //~ if platform == 0 or platform==3:
+                            //~ d = d.decode("utf_16_be",errors="ignore")
+                        //~ else:
+                            //~ d = d.decode(errors="ignore")
+                            
+                        d = d.join("");
+                        meta.push(d);
+                    }
+                }
+                offs += 12;
+            }
+            return meta.join("\n");
+        }
+    }
+}
+  
+
+</script>
+
+</BODY>
+</HEAD>
+</HTML>

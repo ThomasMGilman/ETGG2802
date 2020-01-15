@@ -1,0 +1,11 @@
+layout(location=0) in vec3 velocity;
+
+void main(){
+    vec3 p = psOrigin;
+    p += psElapsed * velocity;
+    vec4 pp = vec4(p,1.0);
+    pp = pp * viewMatrix;
+    pp = pp * projMatrix;
+    gl_Position = pp;
+    gl_PointSize = 16;
+}
