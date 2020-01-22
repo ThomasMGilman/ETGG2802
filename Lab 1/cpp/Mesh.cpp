@@ -259,7 +259,7 @@ Mesh::Mesh(std::string fname)
     else
         throw std::runtime_error("Unknown mesh format");
         
-    Helpers::initialize(this,positions,normals,texcoords,texcoords2,tangents,indices,mlist,lightPositions);
+    Helpers::initialize(this,positions,normals,texcoords, texcoords2.empty() ? texcoords : texcoords2, tangents,indices,mlist,lightPositions);
 }
 
 Mesh* Mesh::fromObjData(const char* data)

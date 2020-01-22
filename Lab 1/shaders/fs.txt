@@ -2,17 +2,35 @@
 in vec3 v_normal;
 in vec3 v_worldPos;
 in vec2 v_texcoord;
+in vec2 v_bumpcoord;
+in vec3 v_tangent;
 out vec4 color;
 
 layout(binding=0) uniform sampler2DArray diffuseTexture;
 layout(binding=1) uniform sampler2DArray emissionTexture;
+layout(binding=3) uniform sampler2DArray bumpmapTexture;
 
 void main(){
     
     
     vec3 N = normalize(v_normal);
     vec3 V = normalize(eyePos - v_worldPos);
-    
+
+    //sample bumpmap texture and convert to TBN
+    vec4 tmp = texture(bumpmapTexture, vec3(v_bumpcoord, 0.0));
+    vec3 v = vec3((tmp.x * 2) - 1, (tmp.y * 2) - 1, (tmp.z * 2) - 1);
+
+    // Gram-Schmidt calculation for bumpmapping
+    vec3 Tangent = normalize(v_tangent - dot(v_tangent, N)*N);
+    vec3 BiTangent = normalize(cross(N, Tangent));
+
+    // get n prime for bumpmapping
+    N = v * mat3(Tangent.x, BiTangent.x, N.x,     //Col 0
+                 Tangent.y, BiTangent.y, N.y,     //Col 1
+                 Tangent.z, BiTangent.z, N.z);    //Col 2
+
+    N = (vec4(N, 0.0)*worldMatrix).xyz;
+
     vec3 totalDiffuseColor=vec3(0.0);
     vec3 totalSpecularColor=vec3(0.0);
     for(int i=0;i<NUM_LIGHTS;++i){
@@ -53,7 +71,7 @@ void main(){
         totalSpecularColor += specPct * lightColor;
         
     }
-    
+
     vec4 diffuseTextureColor = texture( diffuseTexture, vec3(v_texcoord,sliceNumber) );
     vec4 emissionTextureColor = texture( emissionTexture, vec3(v_texcoord,sliceNumber) );
     color.rgb = 0.1 * diffuseTextureColor.rgb +

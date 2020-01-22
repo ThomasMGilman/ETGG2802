@@ -168,7 +168,6 @@
     <ClCompile Include="..\cpp\Zip.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\h\black_png.h" />
     <ClInclude Include="..\h\Buffer.h" />
     <ClInclude Include="..\h\Bullet.h" />
     <ClInclude Include="..\h\Camera.h" />
@@ -208,6 +207,13 @@
     <ClInclude Include="..\h\utils.h" />
     <ClInclude Include="..\h\white_png.h" />
     <ClInclude Include="..\h\Zip.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\shaders\fs.txt" />
+    <Text Include="..\shaders\psfs.txt" />
+    <Text Include="..\shaders\psvs.txt" />
+    <Text Include="..\shaders\uniforms.txt" />
+    <Text Include="..\shaders\vs.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -107,9 +107,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\h\black_png.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\h\Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -227,5 +224,22 @@
     <ClInclude Include="..\h\PowerUp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\shaders\fs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\psfs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\psvs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\uniforms.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\vs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
