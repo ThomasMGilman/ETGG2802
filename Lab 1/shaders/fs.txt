@@ -9,7 +9,56 @@ out vec4 color;
 
 layout(binding=0) uniform sampler2DArray diffuseTexture;
 layout(binding=1) uniform sampler2DArray emissionTexture;
+layout(binding=2) uniform sampler2DArray metallicRoughnessTexture;
 layout(binding=3) uniform sampler2DArray bumpmapTexture;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////// Computations
+//Fresnel Computation for microfacets of material
+//Calculates the shininess off the materail at the given angle and its color
+vec3 fresnel_Computation(float cosPhi, vec3 F0)
+{
+    vec3 one_minus_F0 = vec3(1.0) - F0;
+    return F0 + one_minus_F0 * pow(1.0 - cosPhi, 5.0);
+}
+
+// Schlick Specular Calculation
+// Uses Fresnel Calculation, Visibility Factor, and Microfacet Distribution
+vec3 schlickFresnel(float Mu, float cosPhi, vec3 baseColor)
+{
+    vec3 F0 = mix(vec3(0.04), baseColor, Mu);
+    return F0 + fresnel_Computation(cosPhi, F0);
+}
+
+vec3 cookTorrenceFresnel(float cosPhi, vec3 specularColor)
+{
+    vec3 k = min(specularColor, vec3(0.99)); //prevent zero denominator
+    vec3 sqrtk = sqrt(k);
+    vec3 n = (vec3(-1.0) - sqrtk) / (sqrtk - vec3(1.0));
+    vec3 q = sqrt(cosPhi * cosPhi - 1.0 + n * n);
+    vec3 f1 = q - vec3(cosPhi);
+    vec3 f2 = q + vec3(cosPhi);
+    vec3 f3 = (f2 * cosPhi) - vec3(1.0);
+    vec3 f4 = (f1 * cosPhi) + vec3(1.0);
+    vec3 Q1 = f1 / f2;
+    Q1 *= Q1;
+    vec3 Q2 = f3/f4;
+    Q2 *= Q2;
+    return 0.5 * Q1 * (1 + Q2);
+}
+
+float smithJoint_GGX_Approximation(float cosTheta_in, float cosTheta_out, float RhoSqrd)
+{
+    
+    return 1.0 / ( 2 * 
+            (cosTheta_in * sqrt(RhoSqrd + (1 - RhoSqrd) * cosTheta_out * cosTheta_out) + 
+                cosTheta_out * sqrt(RhoSqrd + (1 - RhoSqrd) * cosTheta_in * cosTheta_in)));
+}
+
+float trowbridge_Reitz_Computation(float cosPsi, float Rho, float RhoSqrd)
+{
+    float tmp = Rho / (1 + cosPsi * cosPsi * (RhoSqrd - 1));
+    return (1/PI) * tmp * tmp;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////// Normal from Bumpmap texture Calculation
 void calculateBumpNormal(inout vec3 normal)
@@ -31,23 +80,56 @@ void calculateBumpNormal(inout vec3 normal)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////// Diffuse Calculations
-vec3 lambert(float cos_theta_i, vec3 baseColor)
+vec3 lambert(float cosTheta_in, vec3 baseColor)
 {
-    return max(0.0, cos_theta_i) * baseColor;
+    return max(0.0, cosTheta_in) * baseColor;
 }
 
-//F = schlickFresnel();
-vec3 schlickDiffuse(vec3 F, float cos_phi, float metallicity, vec3 baseColor, float cos_theta_i)
+//F = schlick fresnelComputation;
+vec3 schlickDiffuse(vec3 F, vec3 baseColor, float Mu, float cosTheta_in)
 {
-    vec3 d = mix(0.96 * baseColor, vec3(0), metallicity);
-    return cos_theta_i * (vec3(1.0)-F) * d / PI;
+    vec3 d = mix(0.96 * baseColor, vec3(0), Mu);            //Scale Diffuse for energy conservation
+    return cosTheta_in * (vec3(1.0)-F) * (d / PI);
+}
+
+//Sigma = Roughness Factor
+vec3 orenNayar(float cosTheta_in, float cosTheta_out, float sigma, vec3 L, vec3 V, vec3 N, vec3 diffuseColor)
+{
+    float sinTheta_out = sqrt(1 - cosTheta_out * cosTheta_out);
+    float sinTheta_in = sqrt(1 - cosTheta_in * cosTheta_in);
+    float sinA, tanB;
+
+    if(cosTheta_in < cosTheta_out)
+    {
+        sinA = sinTheta_in;
+        tanB = sinTheta_out / (cosTheta_out + 2E-38);   //add tiny val to prevent divide by zero
+    }
+    else
+    {
+        sinA = sinTheta_out;
+        tanB = sinTheta_in / (cosTheta_in + 2E-38);
+    }
+
+    float sigmaSqrd = sigma * sigma;
+    float A = 1.0 - 0.5 * sigmaSqrd / (sigmaSqrd + 0.33);
+    float B = 0.45 * sigmaSqrd / (sigmaSqrd + 0.09);
+    vec3 Lprime = normalize(L - cosTheta_in * N);
+    vec3 Vprime = normalize(V - cosTheta_out * N);
+    float cosAlpha = max(0.0, dot(Lprime, Vprime));
+    return cosTheta_in * (A + B * cosAlpha * sinA * tanB) * diffuseColor;
+
+}
+
+vec3 minnaert(float cosTheta_out, float cosTheta_in, float sigma, vec3 baseColor)
+{
+    return pow(cosTheta_out * cosTheta_in, sigma - 1.0) * baseColor;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////// Specular Calculations
 // Base Phong Specular Calculation
-vec3 phong(float cos_theta_i, vec3 L, vec3 N, vec3 V, float shininess, vec3 baseColor)
+vec3 phong(float cosTheta_in, vec3 L, vec3 N, vec3 V, vec3 baseColor)
 {
-    if (cos_theta_i <= 0.0) return vec3(0.0);
+    if (cosTheta_in <= 0.0) return vec3(0.0);
 
     vec3 R = reflect(-L, N);
     float dp = max(0.0, dot(V,R));
@@ -56,45 +138,37 @@ vec3 phong(float cos_theta_i, vec3 L, vec3 N, vec3 V, float shininess, vec3 base
 
 // Luna Specular Calculation
 // Uses Fresnel Calculation for small scale roughness of materials at angle based on microfacets
-vec3 lunaFresnel(float cos_phi, vec3 F0)
+vec3 luna(float cosPsi, float cosPhi, vec3 baseColor)
 {
-    vec3 one_minus_F0 = vec3(1.0) - F0;
-    return F0 + one_minus_F0 * pow(1.0 - cos_phi, 5.0);
+    return fresnel_Computation(cosPhi, baseColor) * (shininess + 8.0)/8.0 * pow(cosPsi, shininess);
 }
 
-vec3 luna(float cos_psi, float cos_phi, vec3 baseColor, float shininess)
+vec3 schlickSpecular(vec3 F, float Rho, float cosPhi, float cosPsi,
+                    vec3 baseColor, float cosTheta_in,
+                    float cosTheta_out)
 {
-    vec3 F = lunaFresnel(cos_phi, baseColor);
-    return F * (shininess + 8.0)/8.0 * pow(cos_psi, shininess);
+    float RhoSqrd = Rho*Rho;
+    float V = smithJoint_GGX_Approximation(cosTheta_in, cosTheta_out, RhoSqrd);
+    float D = trowbridge_Reitz_Computation(cosPsi, Rho, RhoSqrd);
+    return cosTheta_in * F * V * D;
 }
 
-// Schlick Specular Calculation
-// Uses Fresnel Calculation, Visibility Factor, and Microfacet Distribution
-vec3 schlickFresnel(float cos_phi, vec3 baseColor, float metallicity)
+vec3 cookTorrance(vec3 baseColor, float roughness, float cosTheta_in, float cosTheta_out, float cosPsi, float cosPhi)
 {
-    vec3 F0 = mix(vec3(0.04), baseColor, metallicity);
-    vec3 one_minus_F0 = vec3(1.0) - F0;
-    return F0 + one_minus_F0 * pow(1 - cos_phi, 5.0);
-}
+    vec3 F = cookTorrenceFresnel(cosPhi, baseColor);
+    float A = clamp(2.0 * cosPsi * min(cosTheta_out, cosTheta_in) / cosPhi, 0.0, 1.0);
 
-vec3 schlickSpecular(vec3 F, float cos_phi, float cos_psi,
-                    vec3 baseColor, float cos_theta_i,
-                    float cos_theta_o, float rho, float mu)
-{
-    float rho2 = rho*rho;
-    float V = 1.0 / (
-            2.0 * (cos_theta_i * sqrt(rho2 + (1.0 - rho2) * cos_theta_o * cos_theta_o) + 
-            cos_theta_o * sqrt(rho2 + (1.0 - rho2) * cos_theta_i * cos_theta_i)));
-    float tmp = rho / (1.0 + cos_psi * cos_psi * (rho2 - 1.0));
-    float D = 1.0 / PI * tmp * tmp;
-    return cos_theta_i * F * V * D;
+    float cosPsiSqrd = cosPsi * cosPsi;
+    float t = roughness * (1.0 - 1.0 / cosPsiSqrd);
+    float M = roughness * exp(t) / (4.0 * cosPsiSqrd * cosPsiSqrd);
+    return M * F * vec3(A) / (cosTheta_out * cosTheta_in * vec3(PI));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////// Lighting and Color Calculations
 void computeIllumination(vec3 lightPosition, float posOrDir, 
                             vec3 spotDirection, float cosMaxSpotAngle,
                             vec3 lightColor, float cosSpotFadeAngle,
-                            vec3 N, vec3 V, float shininess,
+                            vec3 N, vec3 V, float Rho, float Mu,
                             vec3 baseColor, out vec3 diffuseAmount,
                             out vec3 specularAmount)
 {
@@ -103,41 +177,35 @@ void computeIllumination(vec3 lightPosition, float posOrDir,
     float lightDistance = max(0.0001, length(L));           //prevents division by 0
     L = 1.0 / lightDistance * L;
     float A = 1.0 / (attenuation[0] + lightDistance * (attenuation[1] + lightDistance * attenuation[2]));
-    float cos_theta_i = dot(N, L);
     float spotDot = dot(-L, spotDirection);
     float spotF = clamp((spotDot - cosMaxSpotAngle) / (cosSpotFadeAngle - cosMaxSpotAngle), 0.0, 1.0);
     vec3 tmp = spotF * lightColor * A;
 
-    vec3 H = L + V; //Half Vector between L and V
-
-    // Constants
-    float metallicity = 2;
-    float rho = .5;
-
-    // Angles CHECK THESE!!!!!
-    float cos_out = dot(N, V);              //Angle between N and V
-    float sin_out = sqrt(1-pow(cos_out,2));
-
-    float cos_in = dot(N, L);               //Angle between N and L
-    float sin_in = sqrt(1-pow(cos_in,2));
-
-    float cos_phi = dot(V, H);              //Angle between V and H
-    float cos_psi = dot(H, N);              //Angle between H and N
-
-    //schlick Computations
-    //vec3 F = schlickFresnel(cos_phi, baseColor, metallicity);
-    //diffuseAmount = tmp * schlickDiffuse(F, cos_phi, metallicity, baseColor, cos_in);
-    //specularAmount = tmp * schlickSpecular(F, cos_phi, cos_psi, baseColor, cos_in, cos_out, rho, metallicity);
-
-    //Basic Phon and lambert
-    diffuseAmount = tmp * lambert(cos_theta_i, baseColor);
-    specularAmount = tmp * phong(cos_theta_i, L, N, V, shininess, baseColor);
+    // Angles
+    float cosTheta_out = max(0.0, dot(N, V));               //Angle between N and V
+    float cosTheta_in = max(0.0, dot(N, L));                //Angle between N and L
     
-    //luna Computations
-    //specularAmount = tmp * luna(cos_psi, cos_phi, baseColor, shininess);
+    vec3 H = L + V;                                         //Half Vector between L and V
+    float cosPhi = max(0.0, dot(V, H));                     //Angle between V and H
+    float cosPsi = max(0.0, dot(N, H));                     //Angle between H and N
+
+    //SchlickFresnel
+    //vec3 F = schlickFresnel(Mu, cosPhi, baseColor);
+
+    //DiffuseCalculations
+    diffuseAmount = tmp * lambert(cosTheta_in, baseColor);
+    //diffuseAmount = tmp * schlickDiffuse(F, baseColor, Mu, cosTheta_in);
+    //diffuseAmount = tmp * minnaert(cosTheta_out, cosTheta_in, Rho, baseColor);
+    //diffuseAmount = tmp * orenNayar(cosTheta_in, cosTheta_out, Rho, L, V, N, baseColor);
+
+    //SpecularCalculations
+    specularAmount = tmp * phong(cosTheta_in, L, N, V, baseColor);
+    //specularAmount = tmp * luna(cosPsi, cosPhi, baseColor);
+    //specularAmount = tmp * schlickSpecular(F, Rho, cosPhi, cosPsi, baseColor, cosTheta_in, cosTheta_out);
+    //specularAmount = tmp * cookTorrance(baseColor, Rho, cosTheta_in, cosTheta_out, cosPsi, cosPhi);
 }
 
-void computeTotalIllumination(vec3 V, vec3 N, float shininess, vec3 baseColor, out vec3 totalDiffuseAmount, out vec3 totalSpecularAmount)
+void computeTotalIllumination(float Rho, float Mu, vec3 V, vec3 N, vec3 baseColor, out vec3 totalDiffuseAmount, out vec3 totalSpecularAmount)
 {
     totalDiffuseAmount = vec3(0);
     totalSpecularAmount = vec3(0);
@@ -148,7 +216,7 @@ void computeTotalIllumination(vec3 V, vec3 N, float shininess, vec3 baseColor, o
         computeIllumination(lightPositions[i].xyz, lightPositions[i].w,
                             spotlightDirections[i].xyz, spotlightDirections[i].w,
                             lightColors[i].xyz, lightColors[i].w,
-                            N, V, shininess,
+                            N, V, Rho, Mu,
                             baseColor, diff, spec);
         totalDiffuseAmount += diff;
         totalSpecularAmount += spec;
@@ -167,13 +235,13 @@ void main(){
 
     vec4 diffuseTextureColor = texture( diffuseTexture, vec3(v_texcoord,sliceNumber) );
     vec4 emissionTextureColor = texture( emissionTexture, vec3(v_texcoord,sliceNumber) );
+    vec4 roughnessTextureColor = texture( metallicRoughnessTexture, vec3(v_texcoord,sliceNumber) );
+    
 
-    float shininess = 2.0;
-    float ambientColor = .1;
-    float metallicity = 2;
+    float Rho = roughnessTextureColor.g;    //Roughness factor
+    float Mu = roughnessTextureColor.b;     //Metallicity factor
 
-    computeTotalIllumination(V, N, shininess, diffuseTextureColor.rgb, totalDiffuseColor, totalSpecularColor);
-
+    computeTotalIllumination(Rho, Mu, V, N, diffuseTextureColor.rgb, totalDiffuseColor, totalSpecularColor);
 
     color.rgb = ambientColor * diffuseTextureColor.rgb +
               totalDiffuseColor * diffuseTextureColor.rgb  + 

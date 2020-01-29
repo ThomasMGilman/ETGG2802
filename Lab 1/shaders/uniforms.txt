@@ -22,4 +22,9 @@ layout(std140, row_major) uniform Uniforms {
     vec3 eyePos;
     vec3 attenuation;
     vec3 ambient;
+
+
+    //for coloring in fs.txt
+    float shininess;
+    float ambientColor;
 };

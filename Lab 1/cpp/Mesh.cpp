@@ -300,6 +300,7 @@ void Mesh::drawHelper( GLuint vao, unsigned multiplier)
         q.mtl.emissiveTexture->bind(1);
         q.mtl.roughnessTexture->bind(2);
         q.mtl.normalTexture->bind(3);
+        
         uint32_t bs = (uint32_t) q.byteStart;
         glDrawElements( GL_TRIANGLES, q.count*multiplier, GL_UNSIGNED_INT, (char*)0 + bs * multiplier );
     }

@@ -10,6 +10,12 @@
 #include "Program.h"
 #include "Text.h"
 
+#define MAX_AMBIENT_COLOR 1
+#define MIN_AMBIENT_COLOR 0.1
+
+#define MAX_SHININESS 16.0
+#define MIN_SHININESS 2.0
+
 class Globals{
     public:
     
@@ -19,6 +25,12 @@ class Globals{
     Camera camera{ vec3(0,0.5,0), vec3(0,0.5,1), vec3(0,1,0) };
     
     bool paused = false;
+
+    float speedMultiplier = 1.0;
+
+    // Graphics variables for materials, need to be set through Uniforms when drawing
+    float shininess = 2.0;
+    float ambientColor = 0.1;
     
     LightManager lightManager;
     

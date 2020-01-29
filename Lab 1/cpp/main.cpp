@@ -91,16 +91,35 @@ void mouselook(float dx, float dy )
 void keydown(int k){
     if( k == SDLK_F1 )
         globs->paused = !globs->paused;
+    if (k == SDLK_F2 && globs->ambientColor > MIN_AMBIENT_COLOR)
+        globs->ambientColor -= .01;
+    if (k == SDLK_F3 && globs->ambientColor < MAX_AMBIENT_COLOR)
+        globs->ambientColor += .01;
+    if (k == SDLK_F4 && globs->shininess > MIN_SHININESS)
+        globs->shininess -= .1;
+    if (k == SDLK_F5 && globs->shininess < MAX_SHININESS)
+        globs->shininess += .1;
+
     if( k >= SDLK_0 && k <= SDLK_9 ){
         int idx = k - SDLK_0;
         std::cout << "Toggle light " << idx << "\n";
         globs->lightManager.setColor(idx, vec3(1.0f) - globs->lightManager.getColor(idx) );
+    }
+    if (k == SDLK_LSHIFT) {
+        globs->speedMultiplier = 2.0;
+    } 
+    if (k == SDLK_t)
+    {
+        std::cout << "AmbientColor: " << globs->ambientColor << " Shininess: " << globs->shininess << std::endl;
     }
 }
 
 void keyup( int k ){
     if( k == SDLK_SPACE ){
         mouseClick();
+    }
+    if (k == SDLK_LSHIFT) {
+        globs->speedMultiplier = 1.0;
     }
 }
 
@@ -115,17 +134,17 @@ void update(int elapsed){
         return;
         
     if( keyset.count(SDLK_w) )
-        globs->camera.strafeNoUpDown(0,0,0.001f*elapsedf);
+        globs->camera.strafeNoUpDown(0,0,0.001f * elapsedf * globs->speedMultiplier);
     if( keyset.count( SDLK_s ) )
-        globs->camera.strafeNoUpDown(0,0,-0.001f*elapsedf);
+        globs->camera.strafeNoUpDown(0,0,-0.001f * elapsedf * globs->speedMultiplier);
     if ( keyset.count( SDLK_a ) )
-        globs->camera.strafeNoUpDown(-0.001f*elapsedf,0,0);
+        globs->camera.strafeNoUpDown(-0.001f * elapsedf * globs->speedMultiplier,0,0);
     if ( keyset.count(SDLK_d) )
-        globs->camera.strafeNoUpDown( 0.001f*elapsedf,0,0);
+        globs->camera.strafeNoUpDown( 0.001f * elapsedf * globs->speedMultiplier,0,0);
     if ( keyset.count(SDLK_e) )
-        globs->camera.turn(-0.001f*elapsedf);
+        globs->camera.turn(-0.001f * elapsedf * globs->speedMultiplier);
     if (keyset.count(SDLK_r))
-        globs->camera.turn(0.001f*elapsedf);
+        globs->camera.turn(0.001f * elapsedf * globs->speedMultiplier);
         
     globs->magicLantern.update(elapsed);
 
@@ -152,6 +171,8 @@ void draw(){
     globs->camera.setUniforms();
     globs->lightManager.setUniforms();
 
+    Program::setUniform("shininess", globs->shininess);
+    Program::setUniform("ambientColor", globs->ambientColor);
     Program::setUniform("worldMatrix", mat4::identity() );
     globs->dungeon.draw();
     
