@@ -99,6 +99,14 @@ void keydown(int k){
         globs->shininess -= .1;
     if (k == SDLK_F5 && globs->shininess < MAX_SHININESS)
         globs->shininess += .1;
+    if (k == SDLK_F6 && globs->metallicity > MIN_METALLICITY)
+        globs->metallicity -= .1;
+    if (k == SDLK_F7 && globs->metallicity < MAX_METALLICITY)
+        globs->metallicity += .1;
+    if (k == SDLK_F8 && globs->roughness > MIN_ROUGHNESS)
+        globs->roughness -= .1;
+    if (k == SDLK_F9 )//&& globs->roughness < MAX_ROUGHNESS)
+        globs->roughness += .1;
 
     if( k >= SDLK_0 && k <= SDLK_9 ){
         int idx = k - SDLK_0;
@@ -110,7 +118,8 @@ void keydown(int k){
     } 
     if (k == SDLK_t)
     {
-        std::cout << "AmbientColor: " << globs->ambientColor << " Shininess: " << globs->shininess << std::endl;
+        std::cout << "AmbientColor: " << globs->ambientColor << " Shininess: " << globs->shininess << 
+            "\nRoughness: " << globs->roughness << " Metallicity: " << globs->metallicity <<std::endl;
     }
 }
 
@@ -173,6 +182,8 @@ void draw(){
 
     Program::setUniform("shininess", globs->shininess);
     Program::setUniform("ambientColor", globs->ambientColor);
+    Program::setUniform("metallicity", globs->metallicity);
+    Program::setUniform("roughness", globs->roughness);
     Program::setUniform("worldMatrix", mat4::identity() );
     globs->dungeon.draw();
     

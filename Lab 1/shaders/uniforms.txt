@@ -25,6 +25,8 @@ layout(std140, row_major) uniform Uniforms {
 
 
     //for coloring in fs.txt
+    float metallicity;
+    float roughness;
     float shininess;
     float ambientColor;
 };

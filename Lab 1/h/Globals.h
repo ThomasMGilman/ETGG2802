@@ -16,6 +16,12 @@
 #define MAX_SHININESS 16.0
 #define MIN_SHININESS 2.0
 
+#define MAX_ROUGHNESS 1.0
+#define MIN_ROUGHNESS 0.0
+
+#define MAX_METALLICITY 1.0
+#define MIN_METALLICITY 0.0
+
 class Globals{
     public:
     
@@ -31,6 +37,8 @@ class Globals{
     // Graphics variables for materials, need to be set through Uniforms when drawing
     float shininess = 2.0;
     float ambientColor = 0.1;
+    float roughness = 64;
+    float metallicity = 0;
     
     LightManager lightManager;
     
