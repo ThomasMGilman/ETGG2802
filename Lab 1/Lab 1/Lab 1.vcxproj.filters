@@ -241,5 +241,17 @@
     <Text Include="..\shaders\vs.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="..\shaders\fb_radialBlur_vs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\fb_radialBlur_fs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\fb_depthOfField_fs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\fb_depthOfField_vs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

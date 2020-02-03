@@ -127,9 +127,9 @@ vec3 minnaert(float cosTheta_out, float cosTheta_in, float sigma, vec3 baseColor
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////// Specular Calculations
 // Base Phong Specular Calculation
-vec3 phong(float cosTheta_in, vec3 L, vec3 N, vec3 V, vec3 baseColor)
+vec3 phong(float cosTheta_out, vec3 L, vec3 N, vec3 V, vec3 baseColor)
 {
-    if (cosTheta_in <= 0.0) return vec3(0.0);
+    if (cosTheta_out <= 0.0) return vec3(0.0);
 
     vec3 R = reflect(-L, N);
     float dp = max(0.0, dot(V,R));
@@ -138,9 +138,9 @@ vec3 phong(float cosTheta_in, vec3 L, vec3 N, vec3 V, vec3 baseColor)
 
 // Luna Specular Calculation
 // Uses Fresnel Calculation for small scale roughness of materials at angle based on microfacets
-vec3 luna(float cosTheta_in, float cosPsi, float cosPhi, vec3 baseColor)
+vec3 luna(float cosTheta_out, float cosPsi, float cosPhi, vec3 baseColor)
 {
-    if (cosTheta_in <= 0.0) return vec3(0.0);
+    if (cosTheta_out <= 0.0) return vec3(0.0);
     return fresnel_Computation(cosPhi, baseColor) * (shininess + 8.0)/8.0 * pow(cosPsi, shininess);
 }
 
@@ -148,7 +148,7 @@ vec3 schlickSpecular(vec3 F, float Rho, float cosPhi, float cosPsi,
                     vec3 baseColor, float cosTheta_in,
                     float cosTheta_out)
 {
-    if (cosTheta_in <= 0.0) return vec3(0.0);
+    if (cosTheta_out <= 0.0) return vec3(0.0);
 
     float RhoSqrd = Rho*Rho;
     float V = smithJoint_GGX_Approximation(cosTheta_in, cosTheta_out, RhoSqrd);
@@ -158,7 +158,7 @@ vec3 schlickSpecular(vec3 F, float Rho, float cosPhi, float cosPsi,
 
 vec3 cookTorrance(vec3 baseColor, float roughness, float cosTheta_in, float cosTheta_out, float cosPsi, float cosPhi)
 {
-    if (cosTheta_in <= 0.0) return vec3(0.0);
+    if (cosTheta_out <= 0.0) return vec3(0.0);
 
     vec3 F = cookTorrenceFresnel(cosPhi, baseColor);
     float A = clamp(2.0 * cosPsi * min(cosTheta_out, cosTheta_in) / cosPhi, 0.0, 1.0);
@@ -204,8 +204,8 @@ void computeIllumination(vec3 lightPosition, float posOrDir,
     diffuseAmount = tmp * orenNayar(cosTheta_in, cosTheta_out, Rho, L, V, N, baseColor);
 
     //SpecularCalculations
-    //specularAmount = tmp * phong(cosTheta_in, L, N, V, baseColor);
-    //specularAmount = tmp * luna(cosTheta_in, cosPsi, cosPhi, baseColor);
+    //specularAmount = tmp * phong(cosTheta_out, L, N, V, baseColor);
+    //specularAmount = tmp * luna(cosTheta_out, cosPsi, cosPhi, baseColor);
     //specularAmount = tmp * schlickSpecular(F, Rho, cosPhi, cosPsi, baseColor, cosTheta_in, cosTheta_out);
     specularAmount = tmp * cookTorrance(baseColor, Rho, cosTheta_in, cosTheta_out, cosPsi, cosPhi);
 }
@@ -248,17 +248,18 @@ void main(){
 
     computeTotalIllumination(Rho, Mu, V, N, diffuseTextureColor.rgb, totalDiffuseColor, totalSpecularColor);
 
+    /*
     color.rgb = ambientColor * diffuseTextureColor.rgb +
               totalDiffuseColor * diffuseTextureColor.rgb  + 
               totalSpecularColor * diffuseTextureColor.rgb +	//optional: multiply specular by texColor
               emissionTextureColor.rgb;
     
-    /*
+    */
     color.rgb = ambientColor * diffuseTextureColor.rgb +
               totalDiffuseColor  + 
               totalSpecularColor +	//optional: multiply specular by texColor
               emissionTextureColor.rgb;
-    */
+    
 
     color.a = diffuseTextureColor.a;
 }

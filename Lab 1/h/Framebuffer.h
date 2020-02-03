@@ -8,7 +8,7 @@
 
 class Framebuffer{
   public:
-    
+    int width, height;
     
     class AttachmentInfo{
       public:
@@ -57,7 +57,6 @@ class Framebuffer{
     void blur(unsigned textureNumber, unsigned sliceNumber, int radius, float multiplier);
   
   private:
-    int width, height;
     std::vector<GLenum> drawbuffers;
     std::vector<GLenum> formats;
     GLuint fbo;

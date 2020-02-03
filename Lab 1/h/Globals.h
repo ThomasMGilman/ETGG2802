@@ -1,3 +1,4 @@
+#pragma once
 
 #include <set>
 #include <vector>
@@ -9,6 +10,8 @@
 #include "PowerUp.h"
 #include "Program.h"
 #include "Text.h"
+#include "Framebuffer.h"
+#include "FullscreenQuad.h"
 
 #define MAX_AMBIENT_COLOR 1
 #define MIN_AMBIENT_COLOR 0.1
@@ -24,7 +27,8 @@
 
 class Globals{
     public:
-    
+    Globals();
+
     std::vector<Bullet> bullets;
     std::vector<ParticleSystem> explosions;
     
@@ -43,9 +47,14 @@ class Globals{
     LightManager lightManager;
     
     Program prog{"vs.txt","fs.txt"};
+    Program fboprog{ "fb_depthOfField_vs.txt", "fb_depthOfField_fs.txt"};
     
+    Framebuffer fbo = Framebuffer(SCREENWIDTH, SCREENHEIGHT, 0, GL_RGBA8);
+    Framebuffer fbo2 = Framebuffer(SCREENWIDTH, SCREENHEIGHT, 0, GL_RGBA8);
     Sampler samp;
     
+    FullscreenQuad fsq = FullscreenQuad();
+
     std::vector <PowerUp> candyCanes;
     std::vector<vec3> torches;
     Mesh torchMesh{"torch.glb"};

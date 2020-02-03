@@ -209,6 +209,10 @@
     <ClInclude Include="..\h\Zip.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\shaders\fb_depthOfField_fs.txt" />
+    <Text Include="..\shaders\fb_depthOfField_vs.txt" />
+    <Text Include="..\shaders\fb_radialBlur_fs.txt" />
+    <Text Include="..\shaders\fb_radialBlur_vs.txt" />
     <Text Include="..\shaders\fs.txt" />
     <Text Include="..\shaders\psfs.txt" />
     <Text Include="..\shaders\psvs.txt" />

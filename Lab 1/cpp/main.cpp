@@ -24,8 +24,6 @@ void addPowerUps(vec3 pos)
 }
 
 void setup(){
-
-    
     glPixelStorei(GL_PACK_ALIGNMENT,1);
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
     glEnable(GL_BLEND);
@@ -36,7 +34,6 @@ void setup(){
     glDepthFunc(GL_LEQUAL);
     glClearColor(0.2f,0.4f,0.6f,1.0f);
   
-
     globs = new Globals();
 
     for(int i=0;i<16;++i)
@@ -174,17 +171,22 @@ void update(int elapsed){
 }
 
 void draw(){
-    
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+    //////////////////////////////////////////////////////// Set Program Using
+    globs->prog.use();
+
+    //////////////////////////////////////////////////////// Set FBO as draw target
+    globs->fbo.setAsRenderTarget(true);
+
+    ///////////////////////////////////////////////////////// Set Uniforms
     globs->camera.setUniforms();
     globs->lightManager.setUniforms();
-
     Program::setUniform("shininess", globs->shininess);
     Program::setUniform("ambientColor", globs->ambientColor);
     Program::setUniform("metallicity", globs->metallicity);
     Program::setUniform("roughness", globs->roughness);
-    Program::setUniform("worldMatrix", mat4::identity() );
+    Program::setUniform("worldMatrix", mat4::identity());
+
+    //////////////////////////////////////////////////////// Draw to FBO
     globs->dungeon.draw();
     
     globs->magicLantern.draw();
@@ -205,6 +207,15 @@ void draw(){
 
     for (auto& cane : globs->candyCanes)
         cane.draw();
+
+    //////////////////////////////////////////////////////// Stop Drawing to FBO and clear Screen
+    globs->fbo.unsetAsRenderTarget();
+    globs->fboprog.use();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //////////////////////////////////////////////////////// Use fbo program, bind texture in fbo, draw to quad
+    globs->fbo.texture->bind(0);
+    globs->fsq.draw();
 }
 
 
