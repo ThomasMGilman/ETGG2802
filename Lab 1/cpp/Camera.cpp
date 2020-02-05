@@ -8,6 +8,8 @@ Camera::Camera(vec3 eye, vec3 coi, vec3 up )
     this->aspectRatio = 1.0f;
     this->hither = 0.1f;
     this->yon = 100.0f;
+    this->P = 1.0f + 2.0f * this->yon / (this->hither - this->yon);
+    this->Q = 2.0f * this->hither * this->yon / (this->hither - this->yon);
     this->fov_v = radians(30.0f);
     this->fov_h = aspectRatio * this->fov_v;
     this->updateProjMatrix();
@@ -46,8 +48,6 @@ void Camera::updateProjMatrix()
     //~ float P = -( 1.0f + (2.0f*this->yon)/(this->hither-this->yon) );
     //~ float Q = 2.0f * this->hither * this->yon / ( this->hither - this->yon );
     //rhs
-    float P = 1.0f+ 2.0f*this->yon / (this->hither - this->yon);
-    float Q = 2.0f * this->hither * this->yon / (this->hither - this->yon) ;
     this->projMatrix = mat4(
         1.0f/std::tan(this->fov_h),     0,                          0,       0,
         0,                              1.0f/std::tan(this->fov_v),  0,       0,
@@ -61,6 +61,8 @@ void Camera::setUniforms()
     Program::setUniform("viewMatrix", this->viewMatrix);
     Program::setUniform("projMatrix", this->projMatrix);
     Program::setUniform("eyePos",this->eye.xyz());
+    Program::setUniform("P", P);
+    Program::setUniform("Q", Q);
 }
 
 void Camera::strafe(float dr, float du, float dl)

@@ -6,9 +6,13 @@
 #include <memory>
 #include "glfuncs.h"
 
+class Globals;
+
 class Framebuffer{
-  public:
+    friend Globals;
+public:
     int width, height;
+    GLuint fbo;
     
     class AttachmentInfo{
       public:
@@ -55,11 +59,12 @@ class Framebuffer{
         @param multiplier This value is multiplied with each pixel value to brighten or dim it.
     */
     void blur(unsigned textureNumber, unsigned sliceNumber, int radius, float multiplier);
+
+    void copy(Framebuffer& otherFBO);
   
   private:
     std::vector<GLenum> drawbuffers;
     std::vector<GLenum> formats;
-    GLuint fbo;
     
     void init(int width, int height, const std::vector<AttachmentInfo>& formats );
     

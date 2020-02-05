@@ -14,6 +14,8 @@ class Camera{
     float aspectRatio;
     float hither;
     float yon;
+    float P;
+    float Q;
     float fov_v;
     float fov_h;
     mat4 viewMatrix;

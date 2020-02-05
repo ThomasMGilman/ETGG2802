@@ -29,4 +29,9 @@ layout(std140, row_major) uniform Uniforms {
     float roughness;
     float shininess;
     float ambientColor;
+
+    // From Camera
+    float Q;
+    float P;
+    float focalDistance;
 };

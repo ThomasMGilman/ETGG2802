@@ -25,9 +25,13 @@
 #define MAX_METALLICITY 1.0
 #define MIN_METALLICITY 0.0
 
+#define SCREENWIDTH 512
+#define SCREENHEIGHT 512
+
 class Globals{
     public:
-    Globals();
+        Globals()
+        {};
 
     std::vector<Bullet> bullets;
     std::vector<ParticleSystem> explosions;
@@ -43,17 +47,21 @@ class Globals{
     float ambientColor = 0.1;
     float roughness = 64;
     float metallicity = 0;
+
+    // Focal Distance for DOF
+    float focalDistance = 100;
     
     LightManager lightManager;
     
     Program prog{"vs.txt","fs.txt"};
-    Program fboprog{ "fb_depthOfField_vs.txt", "fb_depthOfField_fs.txt"};
+    Program fboprog{ "fboDOFvs.txt", "fboDOFfs.txt"};
     
-    Framebuffer fbo = Framebuffer(SCREENWIDTH, SCREENHEIGHT, 0, GL_RGBA8);
-    Framebuffer fbo2 = Framebuffer(SCREENWIDTH, SCREENHEIGHT, 0, GL_RGBA8);
+    Framebuffer fbo{ SCREENWIDTH, SCREENHEIGHT, 1, GL_RGBA8 };
+    Framebuffer fbo2{ SCREENWIDTH, SCREENHEIGHT, 1, GL_RGBA8 };
     Sampler samp;
+    Sampler samplerNearest{ Sampler::Type::NEAREST, Sampler::Wrap::CLAMP };
     
-    FullscreenQuad fsq = FullscreenQuad();
+    FullscreenQuad fsq;
 
     std::vector <PowerUp> candyCanes;
     std::vector<vec3> torches;

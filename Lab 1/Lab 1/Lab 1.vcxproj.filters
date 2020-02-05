@@ -241,16 +241,16 @@
     <Text Include="..\shaders\vs.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="..\shaders\fb_radialBlur_vs.txt">
+    <Text Include="..\shaders\fboDOFfs.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="..\shaders\fb_radialBlur_fs.txt">
+    <Text Include="..\shaders\fboDOFvs.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="..\shaders\fb_depthOfField_fs.txt">
+    <Text Include="..\shaders\fboRBfs.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="..\shaders\fb_depthOfField_vs.txt">
+    <Text Include="..\shaders\fboRBvs.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

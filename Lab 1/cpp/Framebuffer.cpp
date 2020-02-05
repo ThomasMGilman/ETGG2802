@@ -325,6 +325,22 @@ void Framebuffer::blur(unsigned textureIndex, unsigned slice, int radius, float 
         
 }
 
+void Framebuffer::copy(Framebuffer& otherFBO)
+{
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, otherFBO.fbo);
+    glBlitFramebuffer(
+        0, 0,                               //Source Start X, Y
+        width, height,                      //Source End X, Y
+        0, 0,                               //Destination Start X, Y
+        otherFBO.width, otherFBO.height,    //Destination End X, Y
+        GL_COLOR_BUFFER_BIT,                //Mask
+        GL_NEAREST);                        //Filter
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    //GLenum error = glGetError();
+}
+
 Framebuffer* Framebuffer::current = nullptr;
 
 Framebuffer::AttachmentInfo::AttachmentInfo( unsigned count, GLenum fmt )

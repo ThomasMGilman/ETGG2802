@@ -15,8 +15,7 @@
 #include "setupgl.h"
 
 Globals* globs;
-const int SCREENWIDTH = 512;
-const int SCREENHEIGHT = 512;
+
 
 void addPowerUps(vec3 pos)
 {
@@ -38,7 +37,11 @@ void setup(){
 
     for(int i=0;i<16;++i)
         globs->samp.bind(i);
+    globs->samplerNearest.bind(16);
     
+    globs->fbo2.setAsRenderTarget(false);
+    globs->fbo2.unsetAsRenderTarget();
+
     globs->prog.use();
     
     globs->lightManager.attenuation = vec3(1,0,0.25);
@@ -173,13 +176,14 @@ void update(int elapsed){
 void draw(){
     //////////////////////////////////////////////////////// Set Program Using
     globs->prog.use();
-
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //////////////////////////////////////////////////////// Set FBO as draw target
     globs->fbo.setAsRenderTarget(true);
 
     ///////////////////////////////////////////////////////// Set Uniforms
     globs->camera.setUniforms();
     globs->lightManager.setUniforms();
+    Program::setUniform("focalDistance", globs->focalDistance);
     Program::setUniform("shininess", globs->shininess);
     Program::setUniform("ambientColor", globs->ambientColor);
     Program::setUniform("metallicity", globs->metallicity);
@@ -210,11 +214,20 @@ void draw(){
 
     //////////////////////////////////////////////////////// Stop Drawing to FBO and clear Screen
     globs->fbo.unsetAsRenderTarget();
+
+    //Copy FBO to FBO2 and Blur FBO2
+    globs->fbo2.copy(globs->fbo);
+    globs->fbo2.blur(0, 0, 20, 1);
+
     globs->fboprog.use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    globs->fbo.dump("fbo1");
+    globs->fbo2.dump("fbo2");
     //////////////////////////////////////////////////////// Use fbo program, bind texture in fbo, draw to quad
-    globs->fbo.texture->bind(0);
+    globs->fbo2.texture->bind(0);
+    globs->fbo.texture->bind(1);
+    globs->fbo.depthtexture->bind(16);
     globs->fsq.draw();
 }
 
