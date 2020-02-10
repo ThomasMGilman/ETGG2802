@@ -34,4 +34,11 @@ layout(std140, row_major) uniform Uniforms {
     float Q;
     float P;
     float focalDistance;
+
+    // For Bluring
+    int doRadialBlur;
+
+    // For Glow
+    int doGlow;
+    float glowThreshold;
 };

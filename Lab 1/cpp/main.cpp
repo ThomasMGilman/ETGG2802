@@ -39,6 +39,8 @@ void setup(){
         globs->samp.bind(i);
     globs->samplerNearest.bind(16);
     
+    globs->fbo.setAsRenderTarget(false);
+    globs->fbo.unsetAsRenderTarget();
     globs->fbo2.setAsRenderTarget(false);
     globs->fbo2.unsetAsRenderTarget();
 
@@ -176,13 +178,18 @@ void update(int elapsed){
 void draw(){
     //////////////////////////////////////////////////////// Set Program Using
     globs->prog.use();
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     //////////////////////////////////////////////////////// Set FBO as draw target
     globs->fbo.setAsRenderTarget(true);
 
     ///////////////////////////////////////////////////////// Set Uniforms
     globs->camera.setUniforms();
     globs->lightManager.setUniforms();
+    Program::setUniform("doRadialBlur", globs->doRadialBlur);
+
+    Program::setUniform("doGlow", false);
+    Program::setUniform("glowThreshold", globs->glowThreshold);
+
     Program::setUniform("focalDistance", globs->focalDistance);
     Program::setUniform("shininess", globs->shininess);
     Program::setUniform("ambientColor", globs->ambientColor);
@@ -209,21 +216,30 @@ void draw(){
     for(auto& x : globs->explosions )
         x.draw();
 
+    Program::setUniform("doGlow", globs->doGlow);
     for (auto& cane : globs->candyCanes)
         cane.draw();
+    Program::setUniform("doGlow", false);
+    
 
     //////////////////////////////////////////////////////// Stop Drawing to FBO and clear Screen
     globs->fbo.unsetAsRenderTarget();
 
     //Copy FBO to FBO2 and Blur FBO2
-    globs->fbo2.copy(globs->fbo);
-    globs->fbo2.blur(0, 0, 20, 1);
+    
+    globs->fbo.copyTo(globs->fbo2);
+    //globs->fbo2.blur(0, 0, globs->blurRadius, globs->blurMultiplier);
+    globs->fbo2.blur(0, 1, globs->blurRadius, globs->blurMultiplier);
 
     globs->fboprog.use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    globs->fbo.dump("fbo1");
-    globs->fbo2.dump("fbo2");
+    if (globs->outputImage)
+    {
+        globs->fbo.dump("fbo1");
+        globs->fbo2.dump("fbo2");
+        globs->outputImage = true;
+    }
     //////////////////////////////////////////////////////// Use fbo program, bind texture in fbo, draw to quad
     globs->fbo2.texture->bind(0);
     globs->fbo.texture->bind(1);

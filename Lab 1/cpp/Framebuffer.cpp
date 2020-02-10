@@ -325,7 +325,7 @@ void Framebuffer::blur(unsigned textureIndex, unsigned slice, int radius, float 
         
 }
 
-void Framebuffer::copy(Framebuffer& otherFBO)
+void Framebuffer::copyTo(Framebuffer& otherFBO)
 {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, otherFBO.fbo);
@@ -336,6 +336,14 @@ void Framebuffer::copy(Framebuffer& otherFBO)
         otherFBO.width, otherFBO.height,    //Destination End X, Y
         GL_COLOR_BUFFER_BIT,                //Mask
         GL_NEAREST);                        //Filter
+
+    glCopyTexSubImage3D(
+        GL_TEXTURE_2D_ARRAY,                //Target texture {GL_TEXTURE_3D, GL_TEXTURE_2D_ARRAY, or GL_TEXTURE_CUBE_MAP_ARRAY}
+        0,                                  //mipmap level
+        0, 0, 1,                            //x,y,z texel offset "Z IS THE SLICE"
+        0, 0,                               //x,y window coords of lower left corner
+        otherFBO.width, otherFBO.height);   //width, height of texture subimage
+    
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     //GLenum error = glGetError();

@@ -13,12 +13,18 @@ void main()
 	vec4 bl = texture( blurred, vec3(v_texCoord, 0.0));		// blurred texture value
 	vec4 unb = texture( unblurred, vec3(v_texCoord, 0.0));	// unblurred texture value
 	float d = texture( depth, vec3(v_texCoord, 0.0)).r;		// Gets Depth scaler
-	float z = -(Q / (1 - 2 * d - P));						// RHS: z goes from 0 -> -infinity
 
-	float delta = abs(z - focalDistance);
-	d = smoothstep(0.0, 2.5, d);							// Change sharp-focus range
+	if(doRadialBlur > 0)
+	{
 
-	color = unb; //mix(unb, bl, d);
+	}
+	else
+	{
+		float z = -(Q / (1 - 2 * d - P));						// RHS: z goes from 0 -> -infinity
+		float delta = abs(z - focalDistance);
+		d = smoothstep(0.0, 5, delta);						// Change sharp-focus range
+	}
+	color = mix(unb, bl, d);
 	color.a = 1.0;
 	return;
 }

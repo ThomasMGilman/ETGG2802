@@ -60,7 +60,7 @@ public:
     */
     void blur(unsigned textureNumber, unsigned sliceNumber, int radius, float multiplier);
 
-    void copy(Framebuffer& otherFBO);
+    void copyTo(Framebuffer& otherFBO);
   
   private:
     std::vector<GLenum> drawbuffers;

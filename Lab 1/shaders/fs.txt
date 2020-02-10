@@ -5,7 +5,9 @@ in vec3 v_worldPos;
 in vec2 v_texcoord;
 in vec2 v_bumpcoord;
 in vec3 v_tangent;
-out vec4 color;
+
+layout(location=0) out vec4 color;
+layout(location=1) out vec4 glow;
 
 layout(binding=0) uniform sampler2DArray diffuseTexture;
 layout(binding=1) uniform sampler2DArray emissionTexture;
@@ -247,19 +249,17 @@ void main(){
     float Mu = metallicity;//roughnessTextureColor.b;     //Metallicity factor
 
     computeTotalIllumination(Rho, Mu, V, N, diffuseTextureColor.rgb, totalDiffuseColor, totalSpecularColor);
-
-    /*
-    color.rgb = ambientColor * diffuseTextureColor.rgb +
-              totalDiffuseColor * diffuseTextureColor.rgb  + 
-              totalSpecularColor * diffuseTextureColor.rgb +	//optional: multiply specular by texColor
-              emissionTextureColor.rgb;
-    
-    */
     color.rgb = ambientColor * diffuseTextureColor.rgb +
               totalDiffuseColor  + 
               totalSpecularColor +	//optional: multiply specular by texColor
               emissionTextureColor.rgb;
-    
 
     color.a = diffuseTextureColor.a;
+
+    if(doGlow > 0)
+        glow.rgb = emissionTextureColor.rgb + totalSpecularColor;
+    else
+        glow.rgb = vec3(0);
+
+    glow.a = diffuseTextureColor.a;
 }
