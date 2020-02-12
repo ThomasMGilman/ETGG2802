@@ -19,10 +19,10 @@
 #define MAX_BLUR_RADIUS 10
 #define MIN_BLUR_RADIUS 1
 
-#define MAX_BLUR_MULTIPLIER 5
+#define MAX_BLUR_MULTIPLIER 10
 #define MIN_BLUR_MULTIPLIER 1.1
 
-#define MAX_GLOW_MULTIPLIER 100
+#define MAX_GLOW_MULTIPLIER 10
 #define MIN_GLOW_MULTIPLIER 1.1
 
 #define MAX_AMBIENT_COLOR 1
@@ -65,8 +65,9 @@ class Globals{
 
     // Blur Variables
     int blurRadius = 4;
+    int glowRadius = 9;
     float blurMultiplier = 1;
-    float glowMultiplier = 1;
+    float glowMultiplier = 7;
     int doRadialBlur = 0;
     bool outputImage = true;
 

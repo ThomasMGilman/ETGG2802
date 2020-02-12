@@ -1,16 +1,23 @@
 in vec2 v_texCoord;
 out vec4 color;
 
-layout(binding = 0) uniform sampler2DArray unblurred;
-layout(binding = 1) uniform sampler2DArray blurred;
+layout(binding = 0) uniform sampler2DArray unblurred;	
+layout(binding = 1) uniform sampler2DArray glow;		// from first fbo on slice 1
+layout(binding = 2) uniform sampler2DArray blurred;		// from second fbo on slice 0
 layout(binding = 16) uniform sampler2DArray depth;
 
 void main()
 {
-	vec4 unb = texture( unblurred, vec3(v_texCoord, 0.0));	// unblurred texture value
-	vec4 bl = texture( unblurred, vec3(v_texCoord, 1.0));	// blurred texture value
+	vec4 unb = texture( unblurred, vec3(v_texCoord, 0.0));	// unblurred texture value from slice 0 of first fbo
+	vec4 glow = texture( glow, vec3(v_texCoord, 1.0));		// glow texture value on slice 1 of first fbo
+	vec4 bl	= texture( blurred, vec3(v_texCoord, 0.0));		// blurred texture value on slice 0 of second fbo
+	float d = texture( depth, vec3(v_texCoord, 0.0)).r;		// Gets Depth scaler
 
-	color.rgb = unb.rgb + bl.rgb;
+	float z = -(Q / (1 - 2 * d - P));						// RHS: z goes from 0 -> -infinity
+	float delta = abs(z - focalDistance);
+	d = smoothstep(0.0, 5.0, delta);						// Change sharp-focus range
+
+	color.rgb = mix(unb, bl, d).rgb + glow.rgb;
 	color.a = unb.a;
 	return;
 }

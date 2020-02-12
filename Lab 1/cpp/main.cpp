@@ -31,7 +31,8 @@ void setup(){
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glClearColor(0.2f,0.4f,0.6f,1.0f);
+    //glClearColor(0.2f, 0.4f, 0.6f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//0.2f,0.4f,0.6f,1.0f);
   
     globs = new Globals();
 
@@ -121,6 +122,8 @@ void keydown(int k){
         globs->blurRadius += 1;
     if (k == SDLK_u && globs->blurRadius > MIN_BLUR_RADIUS)
         globs->blurRadius -= 1;
+    if (k == SDLK_p)
+        globs->outputImage = true;
 
     if( k >= SDLK_0 && k <= SDLK_9 ){
         int idx = k - SDLK_0;
@@ -212,6 +215,8 @@ void draw(){
     Program::setUniform("worldMatrix", mat4::identity());
 
     //////////////////////////////////////////////////////// Draw to FBO
+    
+
     globs->dungeon.draw();
     
     globs->magicLantern.draw();
@@ -233,17 +238,16 @@ void draw(){
     Program::setUniform("doGlow", globs->doGlow);
     for (auto& cane : globs->candyCanes)
         cane.draw();
-    Program::setUniform("doGlow", 0);
-    
+    //Program::setUniform("doGlow", 0);
 
     //////////////////////////////////////////////////////// Stop Drawing to FBO and clear Screen
     globs->fbo.unsetAsRenderTarget();
 
     //Copy FBO to FBO2 and Blur FBO2
     
-    //globs->fbo.copyTo(globs->fbo2);
-    globs->fbo.blur(0, 1, globs->blurRadius, globs->glowMultiplier);
-    //globs->fbo2.blur(0, 0, globs->blurRadius, globs->blurMultiplier);
+    globs->fbo.copyTo(globs->fbo2);
+    globs->fbo.blur(0, 1, globs->glowRadius, globs->glowMultiplier);
+    globs->fbo2.blur(0, 0, globs->blurRadius, globs->blurMultiplier);
 
     globs->fboGLOWprog.use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -254,9 +258,11 @@ void draw(){
         globs->fbo2.dump("fbo2");
         globs->outputImage = false;
     }
+
     //////////////////////////////////////////////////////// Use fbo program, bind texture in fbo, draw to quad
     globs->fbo.texture->bind(0);
     globs->fbo.texture->bind(1);
+    globs->fbo2.texture->bind(2);
     globs->fbo.depthtexture->bind(16);
     globs->fsq.draw();
 }
