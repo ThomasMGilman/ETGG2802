@@ -211,6 +211,8 @@
   <ItemGroup>
     <Text Include="..\shaders\fboDOFfs.txt" />
     <Text Include="..\shaders\fboDOFvs.txt" />
+    <Text Include="..\shaders\fboGLOWfs.txt" />
+    <Text Include="..\shaders\fboGLOWvs.txt" />
     <Text Include="..\shaders\fboRBfs.txt" />
     <Text Include="..\shaders\fboRBvs.txt" />
     <Text Include="..\shaders\fs.txt" />

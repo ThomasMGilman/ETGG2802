@@ -1,0 +1,16 @@
+in vec2 v_texCoord;
+out vec4 color;
+
+layout(binding = 0) uniform sampler2DArray unblurred;
+layout(binding = 1) uniform sampler2DArray blurred;
+layout(binding = 16) uniform sampler2DArray depth;
+
+void main()
+{
+	vec4 unb = texture( unblurred, vec3(v_texCoord, 0.0));	// unblurred texture value
+	vec4 bl = texture( unblurred, vec3(v_texCoord, 1.0));	// blurred texture value
+
+	color.rgb = unb.rgb + bl.rgb;
+	color.a = unb.a;
+	return;
+}

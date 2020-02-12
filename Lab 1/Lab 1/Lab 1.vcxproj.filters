@@ -253,5 +253,11 @@
     <Text Include="..\shaders\fboRBvs.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="..\shaders\fboGLOWfs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\fboGLOWvs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

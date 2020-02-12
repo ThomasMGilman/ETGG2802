@@ -109,6 +109,18 @@ void keydown(int k){
         globs->roughness -= .1;
     if (k == SDLK_F9 )//&& globs->roughness < MAX_ROUGHNESS)
         globs->roughness += .1;
+    if (k == SDLK_b && globs->blurMultiplier < MAX_BLUR_MULTIPLIER)
+        globs->blurMultiplier += .1;
+    else if (globs->blurMultiplier > MIN_BLUR_MULTIPLIER)
+        globs->blurMultiplier -= .1;
+    if (k == SDLK_g  && globs->glowMultiplier < MAX_GLOW_MULTIPLIER)
+        globs->glowMultiplier += .1;
+    else if (globs->glowMultiplier > MIN_GLOW_MULTIPLIER)
+        globs->glowMultiplier -= .1;
+    if (k == SDLK_i && globs->blurRadius < MAX_BLUR_RADIUS)
+        globs->blurRadius += 1;
+    if (k == SDLK_u && globs->blurRadius > MIN_BLUR_RADIUS)
+        globs->blurRadius -= 1;
 
     if( k >= SDLK_0 && k <= SDLK_9 ){
         int idx = k - SDLK_0;
@@ -121,7 +133,9 @@ void keydown(int k){
     if (k == SDLK_t)
     {
         std::cout << "AmbientColor: " << globs->ambientColor << " Shininess: " << globs->shininess << 
-            "\nRoughness: " << globs->roughness << " Metallicity: " << globs->metallicity <<std::endl;
+            "\nRoughness: " << globs->roughness << " Metallicity: " << globs->metallicity <<
+            "\nbluryness: " << globs->blurMultiplier << " glowyness: " << globs->glowMultiplier <<
+            "\nblurRadius: " << globs->blurRadius <<std::endl;
     }
 }
 
@@ -187,7 +201,7 @@ void draw(){
     globs->lightManager.setUniforms();
     Program::setUniform("doRadialBlur", globs->doRadialBlur);
 
-    Program::setUniform("doGlow", false);
+    Program::setUniform("doGlow", 0);
     Program::setUniform("glowThreshold", globs->glowThreshold);
 
     Program::setUniform("focalDistance", globs->focalDistance);
@@ -219,7 +233,7 @@ void draw(){
     Program::setUniform("doGlow", globs->doGlow);
     for (auto& cane : globs->candyCanes)
         cane.draw();
-    Program::setUniform("doGlow", false);
+    Program::setUniform("doGlow", 0);
     
 
     //////////////////////////////////////////////////////// Stop Drawing to FBO and clear Screen
@@ -227,21 +241,21 @@ void draw(){
 
     //Copy FBO to FBO2 and Blur FBO2
     
-    globs->fbo.copyTo(globs->fbo2);
+    //globs->fbo.copyTo(globs->fbo2);
+    globs->fbo.blur(0, 1, globs->blurRadius, globs->glowMultiplier);
     //globs->fbo2.blur(0, 0, globs->blurRadius, globs->blurMultiplier);
-    globs->fbo2.blur(0, 1, globs->blurRadius, globs->blurMultiplier);
 
-    globs->fboprog.use();
+    globs->fboGLOWprog.use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (globs->outputImage)
     {
         globs->fbo.dump("fbo1");
         globs->fbo2.dump("fbo2");
-        globs->outputImage = true;
+        globs->outputImage = false;
     }
     //////////////////////////////////////////////////////// Use fbo program, bind texture in fbo, draw to quad
-    globs->fbo2.texture->bind(0);
+    globs->fbo.texture->bind(0);
     globs->fbo.texture->bind(1);
     globs->fbo.depthtexture->bind(16);
     globs->fsq.draw();

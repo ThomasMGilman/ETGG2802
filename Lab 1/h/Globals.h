@@ -16,11 +16,14 @@
 #define MAX_FOCAL_DISTANCE 200
 #define MIN_FOCAL_DISTANCE 0
 
-#define MAX_BLUR_RADIUS 100
-#define MIN_BLUR_RADIUS 0
+#define MAX_BLUR_RADIUS 10
+#define MIN_BLUR_RADIUS 1
 
 #define MAX_BLUR_MULTIPLIER 5
-#define MIN_BLUR_MULTIPLIER .1
+#define MIN_BLUR_MULTIPLIER 1.1
+
+#define MAX_GLOW_MULTIPLIER 100
+#define MIN_GLOW_MULTIPLIER 1.1
 
 #define MAX_AMBIENT_COLOR 1
 #define MIN_AMBIENT_COLOR 0.1
@@ -63,20 +66,22 @@ class Globals{
     // Blur Variables
     int blurRadius = 4;
     float blurMultiplier = 1;
+    float glowMultiplier = 1;
     int doRadialBlur = 0;
-    bool outputImage = false;
+    bool outputImage = true;
 
     // Glow Variables
-    int doGlow = 0;
+    int doGlow = 1;
     float glowThreshold = 2;
     
     LightManager lightManager;
     
     Program prog{"vs.txt","fs.txt"};
-    Program fboprog{ "fboDOFvs.txt", "fboDOFfs.txt"};
+    Program fboDOFprog{ "fboDOFvs.txt", "fboDOFfs.txt"};
+    Program fboGLOWprog{ "fboGLOWvs.txt", "fboGLOWfs.txt" };
     
     Framebuffer fbo{ SCREENWIDTH, SCREENHEIGHT, 2, GL_RGBA8 };
-    Framebuffer fbo2{ SCREENWIDTH, SCREENHEIGHT, 2, GL_RGBA8 };
+    Framebuffer fbo2{ SCREENWIDTH, SCREENHEIGHT, 1, GL_RGBA8 };
     Sampler samp;
     Sampler samplerNearest{ Sampler::Type::NEAREST, Sampler::Wrap::CLAMP };
     

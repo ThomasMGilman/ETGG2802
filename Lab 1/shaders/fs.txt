@@ -257,9 +257,10 @@ void main(){
     color.a = diffuseTextureColor.a;
 
     if(doGlow > 0)
+    {
         glow.rgb = emissionTextureColor.rgb + totalSpecularColor;
+        glow.a = diffuseTextureColor.a;
+    }
     else
-        glow.rgb = vec3(0);
-
-    glow.a = diffuseTextureColor.a;
+        glow = vec4(0);
 }
