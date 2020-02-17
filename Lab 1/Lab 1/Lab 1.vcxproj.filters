@@ -105,6 +105,9 @@
     <ClCompile Include="..\cpp\PowerUp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\cpp\SkyBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\h\Buffer.h">
@@ -224,6 +227,9 @@
     <ClInclude Include="..\h\PowerUp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\h\SkyBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\shaders\fs.txt">
@@ -257,6 +263,12 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="..\shaders\fboGLOWvs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\skyBoxfs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\skyBoxvs.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

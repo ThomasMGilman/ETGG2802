@@ -54,7 +54,7 @@ void setup(){
         std::cout << "LIGHT " << i << ": " << globs->dungeon.lightPositions[i] << "\n";
         globs->lightManager.setColor(i, vec3(1,1,1));
     }
-    
+
     addPowerUps(vec3(-3, 0, 4));
     addPowerUps(vec3(5, 0, 10));
     addPowerUps(vec3(2, 0, 5));
@@ -210,12 +210,14 @@ void draw(){
     Program::setUniform("focalDistance", globs->focalDistance);
     Program::setUniform("shininess", globs->shininess);
     Program::setUniform("ambientColor", globs->ambientColor);
-    Program::setUniform("metallicity", globs->metallicity);
     Program::setUniform("roughness", globs->roughness);
+    Program::setUniform("metallicity", globs->metallicity);
     Program::setUniform("worldMatrix", mat4::identity());
 
+    //////////////////////////////////////////////////////// Bind Skybox
+    globs->envMap.bind(4);
+
     //////////////////////////////////////////////////////// Draw to FBO
-    
 
     globs->dungeon.draw();
     
@@ -238,7 +240,11 @@ void draw(){
     Program::setUniform("doGlow", globs->doGlow);
     for (auto& cane : globs->candyCanes)
         cane.draw();
-    //Program::setUniform("doGlow", 0);
+    Program::setUniform("doGlow", 0);
+
+    globs->skyBox_prog.use();
+    globs->envMap.bind(0);
+    globs->sBox.draw();
 
     //////////////////////////////////////////////////////// Stop Drawing to FBO and clear Screen
     globs->fbo.unsetAsRenderTarget();
@@ -249,7 +255,7 @@ void draw(){
     globs->fbo.blur(0, 1, globs->glowRadius, globs->glowMultiplier);
     globs->fbo2.blur(0, 0, globs->blurRadius, globs->blurMultiplier);
 
-    globs->fboGLOWprog.use();
+    globs->fboGLOW_prog.use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (globs->outputImage)

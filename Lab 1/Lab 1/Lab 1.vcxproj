@@ -160,6 +160,7 @@
     <ClCompile Include="..\cpp\Program.cpp" />
     <ClCompile Include="..\cpp\Sampler.cpp" />
     <ClCompile Include="..\cpp\setupgl.cpp" />
+    <ClCompile Include="..\cpp\SkyBox.cpp" />
     <ClCompile Include="..\cpp\Text.cpp" />
     <ClCompile Include="..\cpp\Texture.cpp" />
     <ClCompile Include="..\cpp\Texture2DArray.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="..\h\Program.h" />
     <ClInclude Include="..\h\Sampler.h" />
     <ClInclude Include="..\h\setupgl.h" />
+    <ClInclude Include="..\h\SkyBox.h" />
     <ClInclude Include="..\h\Text.h" />
     <ClInclude Include="..\h\Texture.h" />
     <ClInclude Include="..\h\Texture2DArray.h" />
@@ -218,6 +220,8 @@
     <Text Include="..\shaders\fs.txt" />
     <Text Include="..\shaders\psfs.txt" />
     <Text Include="..\shaders\psvs.txt" />
+    <Text Include="..\shaders\skyBoxfs.txt" />
+    <Text Include="..\shaders\skyBoxvs.txt" />
     <Text Include="..\shaders\uniforms.txt" />
     <Text Include="..\shaders\vs.txt" />
   </ItemGroup>

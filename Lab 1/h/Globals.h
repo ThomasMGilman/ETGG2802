@@ -12,6 +12,8 @@
 #include "Text.h"
 #include "Framebuffer.h"
 #include "FullscreenQuad.h"
+#include "ImageTextureCube.h"
+#include "SkyBox.h"
 
 #define MAX_FOCAL_DISTANCE 200
 #define MIN_FOCAL_DISTANCE 0
@@ -31,7 +33,7 @@
 #define MAX_SHININESS 16.0
 #define MIN_SHININESS 2.0
 
-#define MAX_ROUGHNESS 1.0
+#define MAX_ROUGHNESS 4.0
 #define MIN_ROUGHNESS 0.0
 
 #define MAX_METALLICITY 1.0
@@ -54,6 +56,7 @@ class Globals{
 
     float speedMultiplier = 1.0;
 
+    //////////////////////////////////////////////////////// UNIFORM VARIABLES / CONTROLS
     // Graphics variables for materials, need to be set through Uniforms when drawing
     float shininess = 2.0;
     float ambientColor = 0.1;
@@ -74,22 +77,31 @@ class Globals{
     // Glow Variables
     int doGlow = 1;
     float glowThreshold = 2;
-    
+
     LightManager lightManager;
     
+    //////////////////////////////////////////////////////// PROGRAM SHADERS
     Program prog{"vs.txt","fs.txt"};
-    Program fboDOFprog{ "fboDOFvs.txt", "fboDOFfs.txt"};
-    Program fboGLOWprog{ "fboGLOWvs.txt", "fboGLOWfs.txt" };
+    Program fboDOF_prog{ "fboDOFvs.txt", "fboDOFfs.txt"};
+    Program fboGLOW_prog{ "fboGLOWvs.txt", "fboGLOWfs.txt" };
+    Program skyBox_prog{"skyBoxvs.txt", "skyBoxfs.txt"};
+
     
+    //////////////////////////////////////////////////////// FRAME BUFFERS
     Framebuffer fbo{ SCREENWIDTH, SCREENHEIGHT, 2, GL_RGBA8 };
     Framebuffer fbo2{ SCREENWIDTH, SCREENHEIGHT, 1, GL_RGBA8 };
+
+    //////////////////////////////////////////////////////// SAMPLERS
     Sampler samp;
     Sampler samplerNearest{ Sampler::Type::NEAREST, Sampler::Wrap::CLAMP };
     
+    //////////////////////////////////////////////////////// DRAWABLE OBJECTS
     FullscreenQuad fsq;
+    ImageTextureCube envMap{"skybox-%d.png"};
 
     std::vector <PowerUp> candyCanes;
     std::vector<vec3> torches;
+    SkyBox sBox{ vec3(0,0,0) };
     Mesh torchMesh{"torch.glb"};
     Mesh dungeon{"dungeon.glb"};
     MagicLantern magicLantern{vec3(-2,0,4)};
