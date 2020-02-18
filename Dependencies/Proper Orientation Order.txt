@@ -1,0 +1,6 @@
+right_x 	= skybox-0
+left_x 		= skybox-1
+top_y		= skybox-2
+bottom_y	= skybox-3
+front_z		= skybox-4
+back_z		= skybox-5

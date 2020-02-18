@@ -9,9 +9,11 @@ SkyBox::SkyBox(vec3 pos)
 		SkyBox::mesh = new Mesh("cube.obj");
 }
 
-void SkyBox::update(int elapsed)
+void SkyBox::update(int elapsed, bool enabled)
 {
-	
+	if (enabled)
+		this->angle += 0.001f * float(elapsed);
+	if (this->angle >= 360) this->angle -= 360;
 }
 
 void SkyBox::draw()

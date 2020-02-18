@@ -11,6 +11,6 @@ class SkyBox
 
 public:
 	SkyBox(vec3 pos);
-	void update(int elapsed);
+	void update(int elapsed, bool enabled = false);
 	void draw();
 };

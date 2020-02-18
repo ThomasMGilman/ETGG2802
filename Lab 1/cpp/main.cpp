@@ -175,6 +175,7 @@ void update(int elapsed){
         globs->camera.turn(0.001f * elapsedf * globs->speedMultiplier);
         
     globs->magicLantern.update(elapsed);
+    globs->sBox.update(elapsed);
 
     for (auto& cane : globs->candyCanes) 
         cane.update(elapsed);
