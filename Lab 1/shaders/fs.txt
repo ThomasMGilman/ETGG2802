@@ -255,7 +255,7 @@ void main(){
               totalDiffuseColor  + 
               totalSpecularColor +	//optional: multiply specular by texColor
               emissionTextureColor.rgb +
-              (metallicity * reflColor.rgb);
+              (metallicity * reflColor);
 
     color.a = diffuseTextureColor.a;
 

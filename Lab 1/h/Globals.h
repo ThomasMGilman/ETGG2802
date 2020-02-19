@@ -72,7 +72,6 @@ class Globals{
     float blurMultiplier = 1;
     float glowMultiplier = 7;
     int doRadialBlur = 0;
-    bool outputImage = true;
 
     // Glow Variables
     int doGlow = 1;
@@ -90,6 +89,9 @@ class Globals{
     //////////////////////////////////////////////////////// FRAME BUFFERS
     Framebuffer fbo{ SCREENWIDTH, SCREENHEIGHT, 2, GL_RGBA8 };
     Framebuffer fbo2{ SCREENWIDTH, SCREENHEIGHT, 1, GL_RGBA8 };
+
+    // Debug
+    bool outputImage = false;
 
     //////////////////////////////////////////////////////// SAMPLERS
     Sampler samp;

@@ -1,2 +1,15 @@
-﻿  SkyBox.cpp
+﻿  main.cpp
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\h\Globals.h(62,29): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(103,35): warning C4305: '-=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(105,35): warning C4305: '+=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(107,31): warning C4305: '-=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(109,31): warning C4305: '+=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(111,33): warning C4305: '-=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(113,33): warning C4305: '+=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(115,31): warning C4305: '-=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(117,31): warning C4305: '+=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(119,36): warning C4305: '+=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(121,36): warning C4305: '-=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(123,36): warning C4305: '+=': truncation from 'double' to 'float'
+D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\main.cpp(125,36): warning C4305: '-=': truncation from 'double' to 'float'
   Lab 1.vcxproj -> D:\SchoolAndProjects\Programs\ETGG 2802_1 Graphics 2\Lab 1\x64\Debug\Lab 1.exe

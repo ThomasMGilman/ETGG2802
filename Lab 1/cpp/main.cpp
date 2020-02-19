@@ -30,14 +30,19 @@ void setup(){
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glDepthFunc(GL_LEQUAL);
     //glClearColor(0.2f, 0.4f, 0.6f, 1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//0.2f,0.4f,0.6f,1.0f);
   
     globs = new Globals();
 
-    for(int i=0;i<16;++i)
+    for (int i = 0; i < 16; ++i)
+    {
+        if (i == 4)
+            globs->samplerNearest.bind(i);
         globs->samp.bind(i);
+    }
     globs->samplerNearest.bind(16);
     
     globs->fbo.setAsRenderTarget(false);
@@ -204,10 +209,8 @@ void draw(){
     globs->camera.setUniforms();
     globs->lightManager.setUniforms();
     Program::setUniform("doRadialBlur", globs->doRadialBlur);
-
-    Program::setUniform("doGlow", 0);
     Program::setUniform("glowThreshold", globs->glowThreshold);
-
+    Program::setUniform("doGlow", 0);
     Program::setUniform("focalDistance", globs->focalDistance);
     Program::setUniform("shininess", globs->shininess);
     Program::setUniform("ambientColor", globs->ambientColor);
@@ -232,10 +235,10 @@ void draw(){
         globs->torchMesh.draw();
     }
     
-    for(auto& b : globs->bullets )
+    for (auto& b : globs->bullets)
         b.draw();
-    
-    for(auto& x : globs->explosions )
+
+    for (auto& x : globs->explosions)
         x.draw();
 
     Program::setUniform("doGlow", globs->doGlow);

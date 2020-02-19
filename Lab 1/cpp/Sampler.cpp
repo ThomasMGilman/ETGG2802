@@ -17,6 +17,8 @@ Sampler::Sampler(Sampler::Type type, Sampler::Wrap wrap){
             GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
         glSamplerParameteri( this->samp,
             GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        glSamplerParameteri(this->samp,
+            GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     }
     
     if( type == Sampler::Type::MIPMAP ){
