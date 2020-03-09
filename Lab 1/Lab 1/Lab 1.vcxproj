@@ -136,6 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\cpp\bill_board_manager.cpp" />
     <ClCompile Include="..\cpp\Buffer.cpp" />
     <ClCompile Include="..\cpp\Bullet.cpp" />
     <ClCompile Include="..\cpp\Camera.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="..\cpp\Zip.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\h\bill_board_manager.h" />
     <ClInclude Include="..\h\Buffer.h" />
     <ClInclude Include="..\h\Bullet.h" />
     <ClInclude Include="..\h\Camera.h" />
@@ -211,6 +213,9 @@
     <ClInclude Include="..\h\Zip.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\shaders\billBoardfs.txt" />
+    <Text Include="..\shaders\billBoardgs.txt" />
+    <Text Include="..\shaders\billBoardvs.txt" />
     <Text Include="..\shaders\fboDOFfs.txt" />
     <Text Include="..\shaders\fboDOFvs.txt" />
     <Text Include="..\shaders\fboGLOWfs.txt" />

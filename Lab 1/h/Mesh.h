@@ -11,7 +11,7 @@ class Mesh{
 
     Mesh(const Mesh&) = delete;
     void operator=(const Mesh&) = delete;
-    void drawHelper( GLuint vao, unsigned multiplier);
+    void drawHelper( GLuint vao, unsigned multiplier, GLenum mode, GLenum type);
 
     Mesh();
     
@@ -30,7 +30,7 @@ class Mesh{
     std::vector<vec3> lightPositions;
     Mesh(std::string fname);
     ~Mesh();
-    void draw();
-    void drawAdjacency();
+    void draw(GLenum mode = GL_TRIANGLES, GLenum type = GL_UNSIGNED_INT);
+    void drawAdjacency(GLenum mode = GL_TRIANGLES, GLenum type = GL_UNSIGNED_INT);
     static Mesh* fromObjData(const char* data);
 };

@@ -7,22 +7,18 @@ layout(std140, row_major) uniform Uniforms {
     mat4 projMatrix;
     float sliceNumber;
 
-
     //for particle systems
     vec3 psOrigin;
     float psElapsed;
     float psMaxLife;
 
-
     vec4 lightPositions[NUM_LIGHTS];
     vec4 lightColors[NUM_LIGHTS];
     vec4 spotlightDirections[NUM_LIGHTS];
 
-
     vec3 eyePos;
     vec3 attenuation;
     vec3 ambient;
-
 
     //for coloring in fs.txt
     float metallicity;
@@ -41,4 +37,8 @@ layout(std140, row_major) uniform Uniforms {
     // For Glow
     int doGlow;
     float glowThreshold;
+
+    // For BillBoard
+    float halfBBX;
+    float halfBBY;
 };

@@ -108,6 +108,9 @@
     <ClCompile Include="..\cpp\SkyBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\cpp\bill_board_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\h\Buffer.h">
@@ -230,6 +233,9 @@
     <ClInclude Include="..\h\SkyBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\h\bill_board_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\shaders\fs.txt">
@@ -269,6 +275,15 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="..\shaders\skyBoxvs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\billBoardgs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\billBoardfs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\billBoardvs.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

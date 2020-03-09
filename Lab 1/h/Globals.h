@@ -80,11 +80,11 @@ class Globals{
     LightManager lightManager;
     
     //////////////////////////////////////////////////////// PROGRAM SHADERS
-    Program prog{"vs.txt","fs.txt"};
-    Program fboDOF_prog{ "fboDOFvs.txt", "fboDOFfs.txt"};
-    Program fboGLOW_prog{ "fboGLOWvs.txt", "fboGLOWfs.txt" };
-    Program skyBox_prog{"skyBoxvs.txt", "skyBoxfs.txt"};
-
+    Program prog            { "vs.txt","fs.txt" };
+    Program fboDOF_prog     { "fboDOFvs.txt", "fboDOFfs.txt" };
+    Program fboGLOW_prog    { "fboGLOWvs.txt", "fboGLOWfs.txt" };
+    Program skyBox_prog     { "skyBoxvs.txt", "skyBoxfs.txt" };
+    Program billBoard_prog  { "billBoardvs.txt", "billBoardgs.txt", "billBoardfs.txt" };
     
     //////////////////////////////////////////////////////// FRAME BUFFERS
     Framebuffer fbo{ SCREENWIDTH, SCREENHEIGHT, 2, GL_RGBA8 };

@@ -1,0 +1,8 @@
+in vec2 g_texcoord;
+out vec4 color;
+
+layout(binding = 0) uniform sampler2DArray tex;
+void main()
+{
+	color = texture(tex, vec3(g_texcoord, 0.0));
+}

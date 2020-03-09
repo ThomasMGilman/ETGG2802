@@ -282,17 +282,17 @@ Mesh* Mesh::fromObjData(const char* data)
 
 
 
-void Mesh::draw()
+void Mesh::draw(GLenum mode, GLenum type)
 {
-    drawHelper( this->vao, 1 );
+    drawHelper( this->vao, 1, mode, type );
 }
 
-void Mesh::drawAdjacency()
+void Mesh::drawAdjacency(GLenum mode, GLenum type)
 {
-    drawHelper( this->avao, 2 );
+    drawHelper( this->avao, 2, mode, type );
 }
 
-void Mesh::drawHelper( GLuint vao, unsigned multiplier)
+void Mesh::drawHelper( GLuint vao, unsigned multiplier, GLenum mode, GLenum type )
 {
     glBindVertexArray(vao);
     for(auto& q : this->materialList){
@@ -302,7 +302,12 @@ void Mesh::drawHelper( GLuint vao, unsigned multiplier)
         q.mtl.normalTexture->bind(3);
         
         uint32_t bs = (uint32_t) q.byteStart;
-        glDrawElements( GL_TRIANGLES, q.count*multiplier, GL_UNSIGNED_INT, (char*)0 + bs * multiplier );
+        if (mode == GL_TRIANGLES)
+            glDrawElements(mode, q.count * multiplier, type, (char*)0 + bs * multiplier);
+        else if (mode == GL_POINTS)
+            glDrawArrays(mode, 0, q.count * multiplier);
+        else if (mode == GL_POINT)
+            glDrawArrays(mode, 0, 1);
     }
 }
 

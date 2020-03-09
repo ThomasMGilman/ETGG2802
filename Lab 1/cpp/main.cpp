@@ -235,12 +235,18 @@ void draw(){
         globs->torchMesh.draw();
     }
     
+    globs->billBoard_prog.use();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glDepthMask(false);
     for (auto& b : globs->bullets)
         b.draw();
 
     for (auto& x : globs->explosions)
         x.draw();
+    glDepthMask(true);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    globs->prog.use();
     Program::setUniform("doGlow", globs->doGlow);
     for (auto& cane : globs->candyCanes)
         cane.draw();

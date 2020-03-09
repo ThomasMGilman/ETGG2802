@@ -7,6 +7,7 @@
 class Bullet {
     static Mesh* mesh;
   public:
+    float billBoardSize = .5, halfBBX, halfBBY;
     int lifetime;
     vec3 pos;
     vec3 vel;

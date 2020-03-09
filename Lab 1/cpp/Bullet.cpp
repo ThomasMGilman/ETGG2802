@@ -3,7 +3,9 @@
 #include "Program.h"
 
 Bullet::Bullet(vec3 startingPoint, vec3 vel)
-{ 
+{
+    halfBBX = billBoardSize / 2;
+    halfBBY = halfBBY;
     this->lifetime = 750;
     this->pos = startingPoint;
     this->vel = vel;
@@ -18,7 +20,9 @@ void Bullet::update(int elapsed){
 
 void Bullet::draw(){
     Program::setUniform("worldMatrix", scaling(vec3(0.1f,0.1f,0.1f)) * translation( this->pos ) );
-    Bullet::mesh->draw();
+    Program::setUniform("halfBBX", halfBBX);
+    Program::setUniform("halfBBY", halfBBY);
+    Bullet::mesh->draw(GL_POINTS);
 }
 
 bool Bullet::isDead(){

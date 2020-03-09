@@ -5,6 +5,8 @@
 
 ParticleSystem::ParticleSystem(vec3 origin){
     if(ParticleSystem::vao == 0){
+        halfBBX = billBoardSize / 2;
+        halfBBY = halfBBY;
         ParticleSystem::prog = new Program("psvs.txt","psfs.txt");
         ParticleSystem::tex = new ImageTexture2DArray("nova.png");
         GLuint tmp[1]; 
@@ -50,6 +52,8 @@ void ParticleSystem::draw(){
     Program::setUniform("psOrigin",this->origin);
     Program::setUniform("psElapsed",this->totalElapsed);
     Program::setUniform("psMaxLife", ParticleSystem::MAX_LIFE);
+    Program::setUniform("halfBBX", halfBBX);
+    Program::setUniform("halfBBY", halfBBY);
     glBindVertexArray(ParticleSystem::vao);
     ParticleSystem::tex->bind(0);
     glDrawArrays(GL_POINTS,0,ParticleSystem::NUM_PARTICLES);
