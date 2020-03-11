@@ -57,7 +57,6 @@ class Program{
     static void updateUniforms();
     void use();
 
-
     class UniformSetter;
 
   private:

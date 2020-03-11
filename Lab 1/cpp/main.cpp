@@ -16,6 +16,10 @@
 
 Globals* globs;
 
+// Callbacks
+std::function<void(vec3)> spawn_particle = [](vec3 pos) {
+    globs->explosions.push_back(ParticleSystem(pos));
+};
 
 void addPowerUps(vec3 pos)
 {
@@ -187,6 +191,8 @@ void update(int elapsed){
     
     for(auto& b : globs->bullets )
         b.update(elapsed);
+
+    // globs->BBBulletManager.update(elapsed, spawn_particle);
         
     for(auto& ex: globs->explosions )
         ex.update(elapsed);
@@ -198,14 +204,9 @@ void update(int elapsed){
    
 }
 
-void draw(){
-    //////////////////////////////////////////////////////// Set Program Using
-    globs->prog.use();
-
-    //////////////////////////////////////////////////////// Set FBO as draw target
-    globs->fbo.setAsRenderTarget(true);
-
-    ///////////////////////////////////////////////////////// Set Uniforms
+// Set Uniforms for camera, lights, and other globals
+void setUniforms()
+{
     globs->camera.setUniforms();
     globs->lightManager.setUniforms();
     Program::setUniform("doRadialBlur", globs->doRadialBlur);
@@ -217,14 +218,23 @@ void draw(){
     Program::setUniform("roughness", globs->roughness);
     Program::setUniform("metallicity", globs->metallicity);
     Program::setUniform("worldMatrix", mat4::identity());
+}
+
+void draw(){
+    //////////////////////////////////////////////////////// Set Program Using
+    globs->prog.use();
+
+    //////////////////////////////////////////////////////// Set FBO as draw target
+    globs->fbo.setAsRenderTarget(true);
+
+    ///////////////////////////////////////////////////////// Set Uniforms
+    setUniforms();
 
     //////////////////////////////////////////////////////// Bind Skybox
     globs->envMap.bind(4);
 
     //////////////////////////////////////////////////////// Draw to FBO
-
     globs->dungeon.draw();
-    
     globs->magicLantern.draw();
     
     Program::setUniform("worldMatrix", globs->toothyjawsMatrix );
@@ -234,17 +244,12 @@ void draw(){
         Program::setUniform("worldMatrix", translation(pos) );
         globs->torchMesh.draw();
     }
-    
-    globs->billBoard_prog.use();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    glDepthMask(false);
+
     for (auto& b : globs->bullets)
         b.draw();
 
     for (auto& x : globs->explosions)
         x.draw();
-    glDepthMask(true);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     globs->prog.use();
     Program::setUniform("doGlow", globs->doGlow);

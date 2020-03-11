@@ -789,6 +789,7 @@ void Program::setUniform(std::string name, const std::vector<float>& value ){
     
 void Program::updateUniforms(){
     if( bufferDirty ){
+        uboBuffer->bindBase(GL_UNIFORM_BUFFER, 0);
         glBufferSubData(GL_UNIFORM_BUFFER,0,
             uboBackingMemory.size(),
             uboBackingMemory.data()

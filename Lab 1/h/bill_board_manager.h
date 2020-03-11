@@ -1,21 +1,27 @@
 #pragma once
 #include "Program.h"
+#include <functional>
 #include "ImageTexture2DArray.h"
-#include <list>
 
 class BillboardManager {
 public:
-    std::list<vec3> positions;
-    Program prog{ "billBoardvs.txt", "billBoardgs.txt", "billBoardfs.txt" };
+    vec2 size, halfSize;
+    int numBulletsAllowed = 100;
     bool dirty = false;
-    std::shared_ptr<Buffer> positionBuffer;
-    GLuint vao;
-    std::shared_ptr<ImageTexture2DArray> texture;
-    vec2 size;
 
-    BillboardManager(std::shared_ptr<ImageTexture2DArray> tex, vec2 size);
-    std::list<vec3>::iterator add(vec3 pos);
-    void remove(std::list<vec3>::iterator it);
-    void setPosition(std::list<vec3>::iterator it, vec3 v);
+    std::vector<vec4> positions, velocities;
+    std::vector<int> lifetimes;
+
+    Program prog{ "billBoardvs.txt", "billBoardgs.txt", "billBoardfs.txt" };
+    ImageTexture2DArray* texture;
+    Buffer* positionBuffer, *ubo;
+    static GLuint vao;
+    
+    BillboardManager(ImageTexture2DArray tex, vec2 size);
+    ~BillboardManager();
+    void setUniforms();
+    void checkDirty();
+    void add(vec3 pos, vec3 vel);
+    void update(float elapsed, std::function<void(vec3)>& callback);
     void draw();
 };

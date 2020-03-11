@@ -14,6 +14,7 @@
 #include "FullscreenQuad.h"
 #include "ImageTextureCube.h"
 #include "SkyBox.h"
+#include "bill_board_manager.h"
 
 #define MAX_FOCAL_DISTANCE 200
 #define MIN_FOCAL_DISTANCE 0
@@ -41,6 +42,9 @@
 
 #define SCREENWIDTH 512
 #define SCREENHEIGHT 512
+
+#define BULLET_MESH "bullet.glb"
+#define PARTICLE_TEXTURE "nova.png"
 
 class Globals{
     public:
@@ -103,6 +107,7 @@ class Globals{
 
     std::vector <PowerUp> candyCanes;
     std::vector<vec3> torches;
+    BillboardManager* BBBulletManager;
     SkyBox sBox{ vec3(0,0,0) };
     Mesh torchMesh{"torch.glb"};
     Mesh dungeon{"dungeon.glb"};

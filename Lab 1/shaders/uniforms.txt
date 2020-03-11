@@ -39,6 +39,6 @@ layout(std140, row_major) uniform Uniforms {
     float glowThreshold;
 
     // For BillBoard
-    float halfBBX;
-    float halfBBY;
+    vec2 halfBoardSize;
+    vec2 billBoardSize;
 };
