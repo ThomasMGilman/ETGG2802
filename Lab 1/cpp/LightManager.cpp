@@ -1,8 +1,5 @@
-
+#include <stdafx.h>
 #include "LightManager.h"
-#include "Program.h"
-#include "Mesh.h"
-#include "icosphere.h"
 
 namespace {
     Mesh* icosphere = nullptr;

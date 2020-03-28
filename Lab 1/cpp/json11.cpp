@@ -21,6 +21,7 @@
 
 
 //jh - changed from .hpp to .h
+#include <stdafx.h>
 #include "json11.h"
 
 

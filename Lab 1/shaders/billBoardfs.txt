@@ -5,4 +5,6 @@ layout(binding = 0) uniform sampler2DArray tex;
 void main()
 {
 	color = texture(tex, vec3(g_texcoord, 0.0));
+	if ( color.a <= 0.01)
+		discard;
 }

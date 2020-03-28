@@ -1,7 +1,7 @@
 // jh 2018
 //02-jul-2018: Tested with Windows: OK
 //05-oct-2018: Tested with Linux: OK
-
+#include <stdafx.h>
 #include "Image.h"
 
 #include <cstdint>

@@ -35,9 +35,6 @@
 
 
 #pragma once
-
-
-
 #include <cmath>
 #include <iostream>
 #include <sstream>
@@ -49,7 +46,6 @@
 #include <memory>
 #include <array>
 #include <cstring>
-
 
 #ifdef _MSC_VER
 #pragma warning(push)

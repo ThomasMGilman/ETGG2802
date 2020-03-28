@@ -1,4 +1,4 @@
-
+#include <stdafx.h>
 #include "Mesh.h"
 #include "glfuncs.h"
 #include <iostream>
@@ -313,6 +313,46 @@ void Mesh::drawHelper( GLuint vao, unsigned multiplier, GLenum mode, GLenum type
 
 Mesh::~Mesh(){
     glDeleteVertexArrays(1,&vao);
+}
+
+std::shared_ptr<ImageTexture2DArray> Mesh::get_diffuse_texture()
+{
+    if (this->materialList.size() > 0)
+    {
+        auto& q = this->materialList[0];
+        if (q.mtl.baseTexture != nullptr) return q.mtl.baseTexture;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<ImageTexture2DArray> Mesh::get_emissive_texture()
+{
+    if (this->materialList.size() > 0)
+    {
+        auto& q = this->materialList[0];
+        if (q.mtl.emissiveTexture != nullptr) return q.mtl.emissiveTexture;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<ImageTexture2DArray> Mesh::get_roughness_texture()
+{
+    if (this->materialList.size() > 0)
+    {
+        auto& q = this->materialList[0];
+        if (q.mtl.roughnessTexture != nullptr) return q.mtl.roughnessTexture;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<ImageTexture2DArray> Mesh::get_normal_texture()
+{
+    if (this->materialList.size() > 0)
+    {
+        auto& q = this->materialList[0];
+        if (q.mtl.normalTexture != nullptr) return q.mtl.normalTexture;
+    }
+    return nullptr;
 }
 
 Mesh::Mesh(){

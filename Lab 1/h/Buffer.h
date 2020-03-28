@@ -1,5 +1,4 @@
 #pragma once 
-
 #include "glfuncs.h"
 #include <vector>
 #include <array>

@@ -1,7 +1,5 @@
 #pragma once
-
-#include "Mesh.h"
-#include "math3d.h"
+#include <stdafx.h>
 
 class SkyBox
 {

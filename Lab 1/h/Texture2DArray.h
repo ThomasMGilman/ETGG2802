@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Texture.h"
 
 class Texture2DArray: public Texture {

@@ -1,6 +1,5 @@
 #pragma once
 //written by jh sp 2018, fa 2018, fa 2019
-
 #include <fstream>
 #include <iostream>
 #include <string>

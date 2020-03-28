@@ -1,19 +1,22 @@
-
 #pragma once
+#include <stdafx.h>
+#include <game_object.h>
 
-#include "math3d.h"
-#include "Mesh.h"
-
-class Bullet {
+class Bullet : public GameObject
+{
     static Mesh* mesh;
   public:
-    float billBoardSize = .5, halfBBX, halfBBY;
-    int lifetime;
-    vec3 pos;
-    vec3 vel;
-    
+    float billBoardSize = .5;
+
     Bullet(vec3 startingPoint, vec3 vel);
-    void update(int elapsed);
-    void draw();
-    bool isDead();
+
+    void draw() override;
+
+    std::shared_ptr<ImageTexture2DArray> get_diffuse_texture() override;
+
+    std::shared_ptr<ImageTexture2DArray> get_emissive_texture() override;
+
+    std::shared_ptr<ImageTexture2DArray> get_roughness_texture() override;
+
+    std::shared_ptr<ImageTexture2DArray> get_normal_texture() override;
 };

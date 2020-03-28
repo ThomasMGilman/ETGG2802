@@ -1,10 +1,5 @@
-
 #pragma once
-
-#include "math3d.h"
-#include <vector>
-#include <memory>
-#include "Text.h"
+#include <stdafx.h>
 
 class LightManager{
     std::vector<vec4> positions;

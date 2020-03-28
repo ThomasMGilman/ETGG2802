@@ -1,7 +1,6 @@
 // jh fall 2019
 
 #pragma once
-
 #include <cstdint>
 #include <string>
 #include <vector>

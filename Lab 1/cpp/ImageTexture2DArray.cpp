@@ -1,5 +1,5 @@
 
-
+#include <stdafx.h>
 #include "ImageTexture2DArray.h"
 #include "Image.h"
 #include <iostream>

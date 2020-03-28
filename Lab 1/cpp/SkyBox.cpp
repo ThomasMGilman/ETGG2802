@@ -1,5 +1,5 @@
+#include <stdafx.h>
 #include "SkyBox.h"
-#include "Program.h"
 
 SkyBox::SkyBox(vec3 pos)
 {

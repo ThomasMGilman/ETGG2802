@@ -1,4 +1,4 @@
-
+#include <stdafx.h>
 #include "Text.h"
 #include "DataTexture2DArray.h"
 #include "Program.h"

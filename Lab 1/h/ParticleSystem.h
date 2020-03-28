@@ -1,9 +1,5 @@
-
 #pragma once
-
-#include "glfuncs.h"
-#include "ImageTexture2DArray.h"
-#include "Program.h"
+#include <stdafx.h>
 
 class ParticleSystem{
     static GLuint vao;
@@ -17,7 +13,7 @@ class ParticleSystem{
 public:
     ParticleSystem(vec3 origin);
     void update(int elapsed);
-    bool isDead();
+    bool is_dead();
     void draw();
 };
 

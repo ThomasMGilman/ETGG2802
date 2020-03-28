@@ -1,3 +1,4 @@
+#include <stdafx.h>
 #include "glfuncs.h"
 #include "Buffer.h"
 #include <iostream>

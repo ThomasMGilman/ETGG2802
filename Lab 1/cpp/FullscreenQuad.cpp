@@ -1,4 +1,4 @@
-
+#include <stdafx.h>
 #include "FullscreenQuad.h"
 #include "Buffer.h"
 #include "Program.h"

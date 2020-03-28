@@ -1,5 +1,5 @@
 //jh fall 2019
-
+#include <stdafx.h>
 #include "parsegltf.h"
 #include <cstring>
 #include "json11.h"

@@ -2,10 +2,10 @@
 
 
 #pragma once
-
 #include <vector>
 #include <tuple>
 #include "parsegltf.h"
+
 
 
 namespace obj {

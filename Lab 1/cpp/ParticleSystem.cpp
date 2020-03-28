@@ -1,11 +1,11 @@
 
-
+#include <stdafx.h>
 #include "ParticleSystem.h"
 #include "math3d.h"
 
 ParticleSystem::ParticleSystem(vec3 origin){
     if(ParticleSystem::vao == 0){
-        ParticleSystem::prog = new Program("psvs.txt","psfs.txt");
+        ParticleSystem::prog = new Program("psvs.txt", "billBoardgs.txt", "psfs.txt");
         ParticleSystem::tex = new ImageTexture2DArray("nova.png");
         GLuint tmp[1]; 
         glGenVertexArrays(1,tmp);
@@ -39,25 +39,30 @@ void ParticleSystem::update(int elapsed){
     this->totalElapsed += elapsed;
 }
     
-bool ParticleSystem::isDead(){
+bool ParticleSystem::is_dead(){
     return this->totalElapsed >= ParticleSystem::MAX_LIFE;
 }
     
 void ParticleSystem::draw(){
+
     glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+    glDepthMask(false);
+
     auto curr = Program::current;
     ParticleSystem::prog->use();
+    ParticleSystem::tex->bind(0);
+    Program::setUniform("halfBoardSize", vec2(.025));
     Program::setUniform("psOrigin",this->origin);
     Program::setUniform("psElapsed",this->totalElapsed);
     Program::setUniform("psMaxLife", ParticleSystem::MAX_LIFE);
+
     glBindVertexArray(ParticleSystem::vao);
-    ParticleSystem::tex->bind(0);
     glDrawArrays(GL_POINTS,0,ParticleSystem::NUM_PARTICLES);
     if(curr)
         curr->use();
+    glDepthMask(true);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 }
-
 
 GLuint ParticleSystem::vao = 0;
 ImageTexture2DArray* ParticleSystem::tex = nullptr;

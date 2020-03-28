@@ -1,9 +1,5 @@
 #pragma once
-
-
 //utility functions that C++ really *should* have provided...
-
-
 #include <vector>
 #include <string>
 #include <map>

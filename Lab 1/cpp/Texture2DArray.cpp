@@ -1,4 +1,4 @@
-
+#include <stdafx.h>
 #include "Texture2DArray.h"
 
 Texture2DArray::Texture2DArray(unsigned w, unsigned h, unsigned slices) :

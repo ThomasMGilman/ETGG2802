@@ -1,5 +1,5 @@
 
-
+#include <stdafx.h>
 #include "parseobj.h"
 #include <iostream>
 #include <fstream>

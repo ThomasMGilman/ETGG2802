@@ -1,19 +1,13 @@
-
 #pragma once
+#include <stdafx.h>
+#include <game_object.h>
 
-#include "Mesh.h"
-#include "math3d.h"
-
-class MagicLantern 
+class MagicLantern : public GameObject
 {
-    vec3 pos;
-    float frameNum;
     static Mesh* mesh;
-    
   public:
-    
     MagicLantern(vec3 pos);
-    void update(int elapsed);
-    void draw();
+
+    void draw() override;
 };
 

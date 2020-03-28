@@ -1,6 +1,5 @@
 
 #pragma once
-
 #include <string>
 #include "ImageTexture2DArray.h"
 #include <vector>
@@ -30,6 +29,10 @@ class Mesh{
     std::vector<vec3> lightPositions;
     Mesh(std::string fname);
     ~Mesh();
+    std::shared_ptr<ImageTexture2DArray> get_diffuse_texture();
+    std::shared_ptr<ImageTexture2DArray> get_emissive_texture();
+    std::shared_ptr<ImageTexture2DArray> get_roughness_texture();
+    std::shared_ptr<ImageTexture2DArray> get_normal_texture();
     void draw(GLenum mode = GL_TRIANGLES, GLenum type = GL_UNSIGNED_INT);
     void drawAdjacency(GLenum mode = GL_TRIANGLES, GLenum type = GL_UNSIGNED_INT);
     static Mesh* fromObjData(const char* data);

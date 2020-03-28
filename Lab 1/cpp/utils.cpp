@@ -1,7 +1,7 @@
 
 
 //utility functions that C++ really *should* have provided...
-
+#include <stdafx.h>
 #include "utils.h"
 #include <vector>
 #include <string>

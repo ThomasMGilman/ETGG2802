@@ -1,6 +1,5 @@
-
+#include <stdafx.h>
 #include "Camera.h"
-#include <cmath>
 
 Camera::Camera(vec3 eye, vec3 coi, vec3 up )
 {

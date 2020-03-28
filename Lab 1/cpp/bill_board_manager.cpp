@@ -1,43 +1,49 @@
+#include <stdafx.h>
 #include "bill_board_manager.h"
 
-BillboardManager::BillboardManager(ImageTexture2DArray tex, vec2 size)
+void BillBoardManager::setup_vao()
 {
-    texture = &tex;
-    this->size = size;
-    this->halfSize = size / 2;
-    if (BillboardManager::vao == 0)
+    if (BillBoardManager::vao == 0)
     {
         GLuint tmp[1];
         glGenVertexArrays(1, tmp);
-        BillboardManager::vao = tmp[0];
-        glBindVertexArray(BillboardManager::vao);
+        BillBoardManager::vao = tmp[0];
+        glBindVertexArray(BillBoardManager::vao);
+
+        //create buffer
+        std::vector<float> trash;
+        trash.push_back(4);
+        positionBuffer = new Buffer(trash);
+        ubo = new Buffer(numObjsAllowed * sizeof(vec4), GL_DYNAMIC_DRAW);
+        positionBuffer->bind(GL_ARRAY_BUFFER);
+        //create vao
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 1, GL_FLOAT, false, 4, 0);
+        glBindVertexArray(0);
     }
-    
-    //create buffer
-    std::vector<float> trash;
-    trash.push_back(4);
-    positionBuffer = new Buffer(trash);
-    ubo = new Buffer(numBulletsAllowed * sizeof(vec4), GL_DYNAMIC_DRAW);
-    positionBuffer->bind(GL_ARRAY_BUFFER);
-    //create vao
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 1, GL_FLOAT, false, 4, 0);
-    glBindVertexArray(0);
-    positions.reserve(numBulletsAllowed);
+    positions.reserve(numObjsAllowed);
 }
 
-BillboardManager::~BillboardManager()
+BillBoardManager::BillBoardManager(std::shared_ptr<ImageTexture2DArray> diffuse_tex, vec3 size)
+{
+    this->diffuse_texture = diffuse_tex;
+    this->size = size;
+    this->halfSize = size / 2;
+    setup_vao();
+}
+
+BillBoardManager::~BillBoardManager()
 {
     delete(positionBuffer);
     delete(ubo);
 }
 
-void BillboardManager::setUniforms()
+void BillBoardManager::setUniforms()
 {
-    prog.setUniform("halfBoardSize", halfSize);
+    prog.setUniform("halfBoardSize", halfSize.xy());
 }
 
-void BillboardManager::checkDirty()
+void BillBoardManager::checkDirty()
 {
     if (dirty)
     {
@@ -46,9 +52,9 @@ void BillboardManager::checkDirty()
     }
 }
 
-void BillboardManager::add(vec3 pos, vec3 vel)
+void BillBoardManager::add(vec3 pos, vec3 vel)
 {
-    if (positions.size() < numBulletsAllowed)
+    if (positions.size() < numObjsAllowed)
     {
         this->positions.push_back(vec4(pos, 1));
         this->velocities.push_back(vec4(vel, 0));
@@ -57,26 +63,7 @@ void BillboardManager::add(vec3 pos, vec3 vel)
     }
 }
 
-void BillboardManager::update(float elapsed, std::function<void(vec3)>& callback)
-{
-    dirty = true;
-    for (int i = 0; i < positions.size(); i++)
-    {
-        lifetimes[i] -= elapsed;
-        if (lifetimes[i] <= 0)
-        {
-            vec3 pos = positions.at(i).xyz();
-            callback(pos);
-            positions.erase(positions.begin() + i);
-            velocities.erase(velocities.begin() + i);
-            lifetimes.erase(lifetimes.begin() + i);
-        }
-        else
-            positions[i] += velocities[i] * elapsed;
-    }
-}
-
-void BillboardManager::draw()
+void BillBoardManager::draw()
 {
     if (positions.size() > 0)
     {
@@ -84,8 +71,8 @@ void BillboardManager::draw()
         glDepthMask(false);
 
         auto oldprog = Program::current;
-        prog.use();
-        texture->bind(0);
+        this->prog.use();
+        this->diffuse_texture->bind(0);
 
         setUniforms();
 
@@ -103,8 +90,11 @@ void BillboardManager::draw()
             oldprog->use();
         glDepthMask(true);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
- 
     }
 }
 
-GLuint BillboardManager::vao = 0;
+GLuint BillBoardManager::vao = 0;
+
+Buffer* BillBoardManager::positionBuffer = 0;
+
+Buffer* BillBoardManager::ubo = 0;

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Texture.h"
 
 class TextureCube : public Texture {

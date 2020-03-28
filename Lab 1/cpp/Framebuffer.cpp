@@ -1,4 +1,4 @@
-
+#include <stdafx.h>
 #include "Framebuffer.h"
 #include "Program.h"
 #include <map>

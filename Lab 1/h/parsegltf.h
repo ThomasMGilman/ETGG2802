@@ -1,7 +1,6 @@
 //jh fall 2019
 
 #pragma once
- 
 #include <string>
 #include <cstdint>
 #include <memory>
@@ -9,6 +8,7 @@
 #include <tuple>
 #include <map>
 #include "math3d.h"
+
 
 namespace json11 {
     class Json;

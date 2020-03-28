@@ -1,4 +1,4 @@
-
+#include <stdafx.h>
 #include "Program.h"
 
 #include "glfuncs.h"
@@ -14,8 +14,10 @@
 #include <array>
 #include <cmath>
 #include <cassert>
+#include <variant>
 
 using namespace std;
+
 
 
 namespace {  

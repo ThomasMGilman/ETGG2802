@@ -1,5 +1,5 @@
 //written by jh sp 2018, fa 2018, fa 2019
-
+#include <stdafx.h>
 #include "Zip.h"
 #include <cstdio>
 #include <iostream>

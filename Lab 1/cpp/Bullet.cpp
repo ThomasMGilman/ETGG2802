@@ -1,28 +1,36 @@
-
+#include <stdafx.h>
 #include "Bullet.h"
-#include "Program.h"
 
-Bullet::Bullet(vec3 startingPoint, vec3 vel)
+Bullet::Bullet(vec3 startingPoint, vec3 vel) : GameObject(startingPoint, vec3(.1), true, vel, true)
 {
-    this->lifetime = 750;
-    this->pos = startingPoint;
-    this->vel = vel;
-    if( mesh == nullptr )
-        mesh = new Mesh("bullet.glb");
-}
-
-void Bullet::update(int elapsed){
-    this->lifetime -= elapsed;
-    this->pos = this->pos + float(elapsed) * 0.005f * this->vel;
+    if( Bullet::mesh == nullptr )
+        Bullet::mesh = new Mesh("bullet.glb");
 }
 
 void Bullet::draw(){
-    Program::setUniform("worldMatrix", scaling(vec3(0.1f,0.1f,0.1f)) * translation( this->pos ) );
+    this->draw_setup();
+    std::cout << "This matrix: " << this->get_world_mat() << std::endl;
     Bullet::mesh->draw();
 }
 
-bool Bullet::isDead(){
-    return this->lifetime <= 0;
+std::shared_ptr<ImageTexture2DArray> Bullet::get_diffuse_texture()
+{
+    return Bullet::mesh->get_diffuse_texture();
+}
+
+std::shared_ptr<ImageTexture2DArray> Bullet::get_emissive_texture()
+{
+    return Bullet::mesh->get_emissive_texture();
+}
+
+std::shared_ptr<ImageTexture2DArray> Bullet::get_roughness_texture()
+{
+    return Bullet::mesh->get_roughness_texture();
+}
+
+std::shared_ptr<ImageTexture2DArray> Bullet::get_normal_texture()
+{
+    return Bullet::mesh->get_normal_texture();
 }
  
 Mesh* Bullet::mesh = nullptr;

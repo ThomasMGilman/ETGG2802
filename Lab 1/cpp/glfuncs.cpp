@@ -1,3 +1,4 @@
+#include <stdafx.h>
 /*Data from gl.xml, which has this copyright:
 
 #Copyright (c) 2013-2016 The Khronos Group Inc.

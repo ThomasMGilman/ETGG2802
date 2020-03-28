@@ -1,7 +1,5 @@
 #pragma once
-
-#include "math3d.h"
-#include "Program.h"
+#include <stdafx.h>
 
 class Camera{
   public:
@@ -18,6 +16,7 @@ class Camera{
     float Q;
     float fov_v;
     float fov_h;
+    float speedMultiplier = 2;
     mat4 viewMatrix;
     mat4 projMatrix;
     

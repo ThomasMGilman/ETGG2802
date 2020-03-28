@@ -99,6 +99,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,13 +143,18 @@
     <ClCompile Include="..\cpp\Bullet.cpp" />
     <ClCompile Include="..\cpp\Camera.cpp" />
     <ClCompile Include="..\cpp\DataTexture2DArray.cpp" />
+    <ClCompile Include="..\cpp\dungeon.cpp" />
+    <ClCompile Include="..\cpp\enemy.cpp" />
     <ClCompile Include="..\cpp\Framebuffer.cpp" />
     <ClCompile Include="..\cpp\FullscreenQuad.cpp" />
+    <ClCompile Include="..\cpp\game_object.cpp" />
+    <ClCompile Include="..\cpp\game_state.cpp" />
     <ClCompile Include="..\cpp\glfuncs.cpp" />
     <ClCompile Include="..\cpp\icosphere.cpp" />
     <ClCompile Include="..\cpp\Image.cpp" />
     <ClCompile Include="..\cpp\ImageTexture2DArray.cpp" />
     <ClCompile Include="..\cpp\ImageTextureCube.cpp" />
+    <ClCompile Include="..\cpp\input_manager.cpp" />
     <ClCompile Include="..\cpp\json11.cpp" />
     <ClCompile Include="..\cpp\LightManager.cpp" />
     <ClCompile Include="..\cpp\MagicLantern.cpp" />
@@ -162,6 +169,9 @@
     <ClCompile Include="..\cpp\Sampler.cpp" />
     <ClCompile Include="..\cpp\setupgl.cpp" />
     <ClCompile Include="..\cpp\SkyBox.cpp" />
+    <ClCompile Include="..\cpp\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\cpp\Text.cpp" />
     <ClCompile Include="..\cpp\Texture.cpp" />
     <ClCompile Include="..\cpp\Texture2DArray.cpp" />
@@ -179,15 +189,20 @@
     <ClInclude Include="..\h\consolefont18.h" />
     <ClInclude Include="..\h\consolefont24.h" />
     <ClInclude Include="..\h\DataTexture2DArray.h" />
+    <ClInclude Include="..\h\dungeon.h" />
+    <ClInclude Include="..\h\enemy.h" />
     <ClInclude Include="..\h\Framebuffer.h" />
     <ClInclude Include="..\h\FullscreenQuad.h" />
+    <ClInclude Include="..\h\game_object.h" />
+    <ClInclude Include="..\h\game_state.h" />
     <ClInclude Include="..\h\glcorearb.h" />
     <ClInclude Include="..\h\glfuncs.h" />
-    <ClInclude Include="..\h\Globals.h" />
+    <ClInclude Include="..\h\global_variables.h" />
     <ClInclude Include="..\h\icosphere.h" />
     <ClInclude Include="..\h\Image.h" />
     <ClInclude Include="..\h\ImageTexture2DArray.h" />
     <ClInclude Include="..\h\ImageTextureCube.h" />
+    <ClInclude Include="..\h\input_manager.h" />
     <ClInclude Include="..\h\json11.h" />
     <ClInclude Include="..\h\LightManager.h" />
     <ClInclude Include="..\h\MagicLantern.h" />
@@ -203,7 +218,9 @@
     <ClInclude Include="..\h\Program.h" />
     <ClInclude Include="..\h\Sampler.h" />
     <ClInclude Include="..\h\setupgl.h" />
+    <ClInclude Include="..\h\singleton.h" />
     <ClInclude Include="..\h\SkyBox.h" />
+    <ClInclude Include="..\h\stdafx.h" />
     <ClInclude Include="..\h\Text.h" />
     <ClInclude Include="..\h\Texture.h" />
     <ClInclude Include="..\h\Texture2DArray.h" />

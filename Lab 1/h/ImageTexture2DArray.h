@@ -1,6 +1,5 @@
 
 #pragma once
-
 #include "glfuncs.h"
 #include "Texture2DArray.h"
 #include <initializer_list>

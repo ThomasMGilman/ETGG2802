@@ -1,5 +1,4 @@
 #pragma once
-
 #include "glfuncs.h"
 #include "utils.h"
 #include "math3d.h"
@@ -14,8 +13,6 @@
 #include <cmath>
 
 class Program{
-
- 
   public:
     
     static Program* current;

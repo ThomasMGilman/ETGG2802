@@ -1,4 +1,4 @@
-
+#include <stdafx.h>
 const char* icosphereObjData = 
 "# Blender v2.81 (sub 16) OBJ File: ''\n"
 "# www.blender.org\n"
