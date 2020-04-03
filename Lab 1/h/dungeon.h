@@ -15,4 +15,6 @@ public:
 	vec3 get_light_position(int index) { if(index < get_num_light_positions()) return mesh->lightPositions[index]; }
 
 	void draw() override;
+
+	void stencil_draw() override;
 };

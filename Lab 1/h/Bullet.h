@@ -12,6 +12,8 @@ class Bullet : public GameObject
 
     void draw() override;
 
+    void stencil_draw() override;
+
     std::shared_ptr<ImageTexture2DArray> get_diffuse_texture() override;
 
     std::shared_ptr<ImageTexture2DArray> get_emissive_texture() override;

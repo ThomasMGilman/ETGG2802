@@ -21,15 +21,28 @@ layout(std140, row_major) uniform Uniforms {
     vec3 ambient;
 
     //for coloring in fs.txt
+    int isHDR;
     float metallicity;
     float roughness;
     float shininess;
     float ambientColor;
+    float gamma;
+    float exposure;
 
     // From Camera
     float Q;
     float P;
     float focalDistance;
+    float focalSmoothStepMin;
+    float focalSmoothStepMax;
+
+    // Tone Mappping
+    float toneMinValue;
+    float toneMaxValue;
+
+    // HDR
+    float a_lum_val;
+    float lum_white;
 
     // For Bluring
     int doRadialBlur;
@@ -41,4 +54,8 @@ layout(std140, row_major) uniform Uniforms {
     // For BillBoard
     vec2 halfBoardSize;
     vec2 billBoardSize;
+
+    // For StencilBuffer
+    float forceStencilColorFlag;
+    vec4 forceStencilColor;
 };

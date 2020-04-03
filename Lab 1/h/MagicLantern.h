@@ -9,5 +9,7 @@ class MagicLantern : public GameObject
     MagicLantern(vec3 pos);
 
     void draw() override;
+
+    void stencil_draw() override;
 };
 

@@ -1,8 +1,0 @@
-layout(location=0) in vec3 velocity;
-
-void main(){
-    vec3 p = psOrigin;
-    p += psElapsed * velocity;
-
-    gl_Position = vec4(p,1.0);
-}

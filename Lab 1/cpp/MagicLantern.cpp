@@ -11,6 +11,19 @@ MagicLantern::MagicLantern(vec3 pos ) : GameObject(pos)
 void MagicLantern::draw(){
     this->draw_setup();
     MagicLantern::mesh->draw();
+    stencil_draw();
+}
+
+void MagicLantern::stencil_draw()
+{
+    if (using_stencil_buffer())
+    {
+        setup_stencil_first_draw();
+        MagicLantern::mesh->draw();
+        setup_stencil_second_draw();
+        MagicLantern::mesh->draw();
+        cleanup_stencil_draw();
+    }
 }
 
 Mesh* MagicLantern::mesh = nullptr;

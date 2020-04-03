@@ -13,6 +13,7 @@ void GameState::setup_gl_attributes()
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glEnable(GL_STENCIL_TEST);
     glDepthFunc(GL_LEQUAL);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -36,24 +37,46 @@ void GameState::setup_frame_buffers()
     fbo1.unsetAsRenderTarget();
 }
 
+void GameState::setup_uniform_map()
+{
+    make_uniform("shininess", 2.0f);
+    make_uniform("ambientColor", 0.09f);
+    make_uniform("roughness", 64.0f);
+    make_uniform("metallicity", 0.0f);
+    make_uniform("gamma", 2.2f);
+    make_uniform("exposure", 2.0f);
+    make_uniform("focalDistance", 1.0f);
+    make_uniform("isHDR", 0);
+    make_uniform("focalSmoothStepMin", 0.0f);
+    make_uniform("focalSmoothStepMax", 10.0f);
+    make_uniform("doRadialBlur", 0);
+    make_uniform("blurRadius", 4, true);
+    make_uniform("blurMultiplier", 2.0f, true);
+    make_uniform("doGlow", 0);
+    make_uniform("glowRadius", 9, true);
+    make_uniform("glowMultiplier", 7.0f, true);
+    make_uniform("glowThreshold", 2.0f);
+    make_uniform("toneMinValue", 0.5f);
+    make_uniform("toneMaxValue", 5.0f);
+    make_uniform("a_lum_val", 0.2f);
+    make_uniform("lum_white", 2.0f);
+}
+
 void GameState::debug_output_scene()
 {
     fbo.dump("fbo0");
     fbo1.dump("fbo1");
+    this->outputImage = false;
 }
 
 void GameState::debug_print_uniforms()
 {
-    std::map<std::string, uniformData>::iterator uniformEntryPointer = uniformInfo.begin();
+    std::map<std::string, uniformData*>::iterator uniformEntryPointer = uniformInfo.begin();
     std::cout << "Uniforms:";
     while (uniformEntryPointer != uniformInfo.end())
     {
-        std::cout << "\n\t" << uniformEntryPointer->first << ": ";
-        const type_info* type = uniformEntryPointer->second.dataType;
-        if (type == &typeid(int))
-            std::cout << std::to_string(std::get<int>(uniformEntryPointer->second.d));
-        if (type == &typeid(float))
-            std::cout << std::to_string(std::get<float>(uniformEntryPointer->second.d));
+        std::cout << "\n\t";
+        uniformEntryPointer->second->debug_print();
         uniformEntryPointer++;
     }
     std::cout << std::endl;
@@ -64,6 +87,7 @@ GameState::GameState()
     setup_gl_attributes();
     setup_sample_buffers();
     setup_frame_buffers();
+    setup_uniform_map();
     mainProg.use();
 
     inputManager = new InputManager();
@@ -87,49 +111,39 @@ GameState::~GameState()
     delete(inputManager);
     delete(lightManager);
     delete(BB_BulletManager);
+    std::map<std::string, uniformData*>::iterator ud;
+    while (ud != uniformInfo.end())
+    {
+        delete(ud->second);
+        ud++;
+    }
 }
 
 uniformData* GameState::get_uniform(std::string uniform_name)
 {
-    std::map<std::string, uniformData>::iterator uniformEntryPointer = uniformInfo.find(uniform_name);
+    std::map<std::string, uniformData*>::iterator uniformEntryPointer = uniformInfo.find(uniform_name);
     if (uniformEntryPointer == uniformInfo.end())
-        throw new std::exception(("Uniform specified does not exist!! uniform: "+uniform_name).c_str());
-    return &uniformEntryPointer->second;
-}
-
-void GameState::set_uniform(std::map<std::string, uniformData>::iterator uniformEntryPointer)
-{
-    std::string name = uniformEntryPointer->first;
-    const std::type_info* dataType = uniformEntryPointer->second.dataType;
-    if (dataType->hash_code() == typeid(int).hash_code())
-    {
-        int val = std::get<int>(uniformEntryPointer->second.d);
-        Program::setUniform(name, val);
-    }
-    if (dataType->hash_code() == typeid(float).hash_code())
-    {
-        float val = std::get<float>(uniformEntryPointer->second.d);
-        Program::setUniform(name, val);
-    }
+        throw new std::runtime_error(("Uniform specified does not exist!! uniform: "+uniform_name).c_str());
+    return uniformEntryPointer->second;
 }
 
 void GameState::set_uniform(std::string uniform_name)
 {
-    std::map<std::string, uniformData>::iterator uniformEntryPointer = uniformInfo.find(uniform_name);
+    std::map<std::string, uniformData*>::iterator uniformEntryPointer = uniformInfo.find(uniform_name);
     if (uniformEntryPointer == uniformInfo.end())
-        throw new std::exception(("Unfiorm: " + uniform_name + " Does not exist in uniformInfo!!").c_str());
-    set_uniform(uniformEntryPointer);
+        throw new std::runtime_error(("Unfiorm: " + uniform_name + " Does not exist in uniformInfo!!").c_str());
+    uniformEntryPointer->second->set_uniform();
 }
 
 void GameState::set_uniforms()
 {
     camera.setUniforms();
     lightManager->setUniforms();
-    std::map<std::string, uniformData>::iterator uniformEntryPointer = uniformInfo.begin();
+    std::map<std::string, uniformData*>::iterator uniformEntryPointer = uniformInfo.begin();
     while (uniformEntryPointer != uniformInfo.end())
     { 
-        if(!(uniformEntryPointer->second.setManually))
-            set_uniform(uniformEntryPointer);
+        if(!(uniformEntryPointer->second->setManually))
+            uniformEntryPointer->second->set_uniform();
         uniformEntryPointer++;
     }
     Program::setUniform("worldMatrix", mat4::identity());
@@ -198,25 +212,25 @@ void GameState::draw()
     for (auto& x : explosions)
         x.draw();
 
-    set_uniform("doGlow");
+    set_uniform<int>("doGlow", 1);
     for (auto& cane : candyCanes)
         cane.draw();
     set_uniform<int>("doGlow", 0);
 
-    envMap.bind(0);                 // Unbind SkyBox
+    envMap.bind(0);
     skyBoxProg.use();               // Set SkyBox Program Shader      
     sBox.draw();                    // draw SkyBox Box
 
     fbo.unsetAsRenderTarget();      // Stop drawing to FBO
     fbo.copyTo(fbo1);
-    fbo.blur(0, 1, get_uniform_data<int>("glowRadius"), get_uniform_data<float>("glowMultiplier"));
-    fbo1.blur(0, 0, get_uniform_data<int>("blurRadius"), get_uniform_data<float>("blurMultiplier"));
+    fbo.blur(0, 1, get_uniform_data<int>("glowRadius"), get_uniform_data<float>("glowMultiplier"), get_uniform_data<int>("isHDR"));
+    fbo1.blur(0, 0, get_uniform_data<int>("blurRadius"), get_uniform_data<float>("blurMultiplier"), get_uniform_data<int>("isHDR"));
 
-    fboGLOWProg.use();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
     if (outputImage)
         debug_output_scene();
+
+    postProcessProg.use();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     fbo.texture->bind(0);           // bind texture to Image2DArray 0
     fbo.texture->bind(1);           // bind texture to Image2DArray 1

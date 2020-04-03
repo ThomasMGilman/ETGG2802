@@ -18,6 +18,115 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\h\bill_board_manager.h" />
+    <ClInclude Include="..\h\black_png.h" />
+    <ClInclude Include="..\h\Buffer.h" />
+    <ClInclude Include="..\h\Bullet.h" />
+    <ClInclude Include="..\h\Camera.h" />
+    <ClInclude Include="..\h\consolefont12.h" />
+    <ClInclude Include="..\h\consolefont14.h" />
+    <ClInclude Include="..\h\consolefont18.h" />
+    <ClInclude Include="..\h\consolefont24.h" />
+    <ClInclude Include="..\h\DataTexture2DArray.h" />
+    <ClInclude Include="..\h\dungeon.h" />
+    <ClInclude Include="..\h\enemy.h" />
+    <ClInclude Include="..\h\Framebuffer.h" />
+    <ClInclude Include="..\h\FullscreenQuad.h" />
+    <ClInclude Include="..\h\game_object.h" />
+    <ClInclude Include="..\h\game_state.h" />
+    <ClInclude Include="..\h\glcorearb.h" />
+    <ClInclude Include="..\h\glfuncs.h" />
+    <ClInclude Include="..\h\global_variables.h" />
+    <ClInclude Include="..\h\icosphere.h" />
+    <ClInclude Include="..\h\Image.h" />
+    <ClInclude Include="..\h\ImageTexture2DArray.h" />
+    <ClInclude Include="..\h\ImageTextureCube.h" />
+    <ClInclude Include="..\h\input_manager.h" />
+    <ClInclude Include="..\h\json11.h" />
+    <ClInclude Include="..\h\LightManager.h" />
+    <ClInclude Include="..\h\MagicLantern.h" />
+    <ClInclude Include="..\h\math3d.h" />
+    <ClInclude Include="..\h\Mesh.h" />
+    <ClInclude Include="..\h\miniz_common.h" />
+    <ClInclude Include="..\h\miniz_tinfl.h" />
+    <ClInclude Include="..\h\parsegltf.h" />
+    <ClInclude Include="..\h\parseobj.h" />
+    <ClInclude Include="..\h\ParticleSystem.h" />
+    <ClInclude Include="..\h\periwinkle_png.h" />
+    <ClInclude Include="..\h\PowerUp.h" />
+    <ClInclude Include="..\h\Program.h" />
+    <ClInclude Include="..\h\Sampler.h" />
+    <ClInclude Include="..\h\setupgl.h" />
+    <ClInclude Include="..\h\singleton.h" />
+    <ClInclude Include="..\h\SkyBox.h" />
+    <ClInclude Include="..\h\stdafx.h" />
+    <ClInclude Include="..\h\Text.h" />
+    <ClInclude Include="..\h\Texture.h" />
+    <ClInclude Include="..\h\Texture2DArray.h" />
+    <ClInclude Include="..\h\TextureCube.h" />
+    <ClInclude Include="..\h\uniform_data.h" />
+    <ClInclude Include="..\h\utils.h" />
+    <ClInclude Include="..\h\white_png.h" />
+    <ClInclude Include="..\h\Zip.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\shaders\bill_board_fs.txt" />
+    <Text Include="..\shaders\bill_board_gs.txt" />
+    <Text Include="..\shaders\bill_board_vs.txt" />
+    <Text Include="..\shaders\main_fs.txt" />
+    <Text Include="..\shaders\main_vs.txt" />
+    <Text Include="..\shaders\particle_system_fs.txt" />
+    <Text Include="..\shaders\particle_system_vs.txt" />
+    <Text Include="..\shaders\post_process_fs.txt" />
+    <Text Include="..\shaders\post_process_vs.txt" />
+    <Text Include="..\shaders\sky_box_fs.txt" />
+    <Text Include="..\shaders\sky_box_vs.txt" />
+    <Text Include="..\shaders\uniforms.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\cpp\bill_board_manager.cpp" />
+    <ClCompile Include="..\cpp\Buffer.cpp" />
+    <ClCompile Include="..\cpp\Bullet.cpp" />
+    <ClCompile Include="..\cpp\Camera.cpp" />
+    <ClCompile Include="..\cpp\DataTexture2DArray.cpp" />
+    <ClCompile Include="..\cpp\dungeon.cpp" />
+    <ClCompile Include="..\cpp\enemy.cpp" />
+    <ClCompile Include="..\cpp\Framebuffer.cpp" />
+    <ClCompile Include="..\cpp\FullscreenQuad.cpp" />
+    <ClCompile Include="..\cpp\game_object.cpp" />
+    <ClCompile Include="..\cpp\game_state.cpp" />
+    <ClCompile Include="..\cpp\glfuncs.cpp" />
+    <ClCompile Include="..\cpp\icosphere.cpp" />
+    <ClCompile Include="..\cpp\Image.cpp" />
+    <ClCompile Include="..\cpp\ImageTexture2DArray.cpp" />
+    <ClCompile Include="..\cpp\ImageTextureCube.cpp" />
+    <ClCompile Include="..\cpp\input_manager.cpp" />
+    <ClCompile Include="..\cpp\json11.cpp" />
+    <ClCompile Include="..\cpp\LightManager.cpp" />
+    <ClCompile Include="..\cpp\MagicLantern.cpp" />
+    <ClCompile Include="..\cpp\main.cpp" />
+    <ClCompile Include="..\cpp\Mesh.cpp" />
+    <ClCompile Include="..\cpp\miniz_tinfl.cpp" />
+    <ClCompile Include="..\cpp\parsegltf.cpp" />
+    <ClCompile Include="..\cpp\parseobj.cpp" />
+    <ClCompile Include="..\cpp\ParticleSystem.cpp" />
+    <ClCompile Include="..\cpp\PowerUp.cpp" />
+    <ClCompile Include="..\cpp\Program.cpp" />
+    <ClCompile Include="..\cpp\Sampler.cpp" />
+    <ClCompile Include="..\cpp\setupgl.cpp" />
+    <ClCompile Include="..\cpp\SkyBox.cpp" />
+    <ClCompile Include="..\cpp\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\cpp\Text.cpp" />
+    <ClCompile Include="..\cpp\Texture.cpp" />
+    <ClCompile Include="..\cpp\Texture2DArray.cpp" />
+    <ClCompile Include="..\cpp\TextureCube.cpp" />
+    <ClCompile Include="..\cpp\uniform_data.cpp" />
+    <ClCompile Include="..\cpp\utils.cpp" />
+    <ClCompile Include="..\cpp\Zip.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{021301F4-FF37-49ED-9267-4202E6202881}</ProjectGuid>
@@ -137,116 +246,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\cpp\bill_board_manager.cpp" />
-    <ClCompile Include="..\cpp\Buffer.cpp" />
-    <ClCompile Include="..\cpp\Bullet.cpp" />
-    <ClCompile Include="..\cpp\Camera.cpp" />
-    <ClCompile Include="..\cpp\DataTexture2DArray.cpp" />
-    <ClCompile Include="..\cpp\dungeon.cpp" />
-    <ClCompile Include="..\cpp\enemy.cpp" />
-    <ClCompile Include="..\cpp\Framebuffer.cpp" />
-    <ClCompile Include="..\cpp\FullscreenQuad.cpp" />
-    <ClCompile Include="..\cpp\game_object.cpp" />
-    <ClCompile Include="..\cpp\game_state.cpp" />
-    <ClCompile Include="..\cpp\glfuncs.cpp" />
-    <ClCompile Include="..\cpp\icosphere.cpp" />
-    <ClCompile Include="..\cpp\Image.cpp" />
-    <ClCompile Include="..\cpp\ImageTexture2DArray.cpp" />
-    <ClCompile Include="..\cpp\ImageTextureCube.cpp" />
-    <ClCompile Include="..\cpp\input_manager.cpp" />
-    <ClCompile Include="..\cpp\json11.cpp" />
-    <ClCompile Include="..\cpp\LightManager.cpp" />
-    <ClCompile Include="..\cpp\MagicLantern.cpp" />
-    <ClCompile Include="..\cpp\main.cpp" />
-    <ClCompile Include="..\cpp\Mesh.cpp" />
-    <ClCompile Include="..\cpp\miniz_tinfl.cpp" />
-    <ClCompile Include="..\cpp\parsegltf.cpp" />
-    <ClCompile Include="..\cpp\parseobj.cpp" />
-    <ClCompile Include="..\cpp\ParticleSystem.cpp" />
-    <ClCompile Include="..\cpp\PowerUp.cpp" />
-    <ClCompile Include="..\cpp\Program.cpp" />
-    <ClCompile Include="..\cpp\Sampler.cpp" />
-    <ClCompile Include="..\cpp\setupgl.cpp" />
-    <ClCompile Include="..\cpp\SkyBox.cpp" />
-    <ClCompile Include="..\cpp\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\cpp\Text.cpp" />
-    <ClCompile Include="..\cpp\Texture.cpp" />
-    <ClCompile Include="..\cpp\Texture2DArray.cpp" />
-    <ClCompile Include="..\cpp\TextureCube.cpp" />
-    <ClCompile Include="..\cpp\utils.cpp" />
-    <ClCompile Include="..\cpp\Zip.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\h\bill_board_manager.h" />
-    <ClInclude Include="..\h\Buffer.h" />
-    <ClInclude Include="..\h\Bullet.h" />
-    <ClInclude Include="..\h\Camera.h" />
-    <ClInclude Include="..\h\consolefont12.h" />
-    <ClInclude Include="..\h\consolefont14.h" />
-    <ClInclude Include="..\h\consolefont18.h" />
-    <ClInclude Include="..\h\consolefont24.h" />
-    <ClInclude Include="..\h\DataTexture2DArray.h" />
-    <ClInclude Include="..\h\dungeon.h" />
-    <ClInclude Include="..\h\enemy.h" />
-    <ClInclude Include="..\h\Framebuffer.h" />
-    <ClInclude Include="..\h\FullscreenQuad.h" />
-    <ClInclude Include="..\h\game_object.h" />
-    <ClInclude Include="..\h\game_state.h" />
-    <ClInclude Include="..\h\glcorearb.h" />
-    <ClInclude Include="..\h\glfuncs.h" />
-    <ClInclude Include="..\h\global_variables.h" />
-    <ClInclude Include="..\h\icosphere.h" />
-    <ClInclude Include="..\h\Image.h" />
-    <ClInclude Include="..\h\ImageTexture2DArray.h" />
-    <ClInclude Include="..\h\ImageTextureCube.h" />
-    <ClInclude Include="..\h\input_manager.h" />
-    <ClInclude Include="..\h\json11.h" />
-    <ClInclude Include="..\h\LightManager.h" />
-    <ClInclude Include="..\h\MagicLantern.h" />
-    <ClInclude Include="..\h\math3d.h" />
-    <ClInclude Include="..\h\Mesh.h" />
-    <ClInclude Include="..\h\miniz_common.h" />
-    <ClInclude Include="..\h\miniz_tinfl.h" />
-    <ClInclude Include="..\h\parsegltf.h" />
-    <ClInclude Include="..\h\parseobj.h" />
-    <ClInclude Include="..\h\ParticleSystem.h" />
-    <ClInclude Include="..\h\periwinkle_png.h" />
-    <ClInclude Include="..\h\PowerUp.h" />
-    <ClInclude Include="..\h\Program.h" />
-    <ClInclude Include="..\h\Sampler.h" />
-    <ClInclude Include="..\h\setupgl.h" />
-    <ClInclude Include="..\h\singleton.h" />
-    <ClInclude Include="..\h\SkyBox.h" />
-    <ClInclude Include="..\h\stdafx.h" />
-    <ClInclude Include="..\h\Text.h" />
-    <ClInclude Include="..\h\Texture.h" />
-    <ClInclude Include="..\h\Texture2DArray.h" />
-    <ClInclude Include="..\h\TextureCube.h" />
-    <ClInclude Include="..\h\utils.h" />
-    <ClInclude Include="..\h\white_png.h" />
-    <ClInclude Include="..\h\Zip.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\shaders\billBoardfs.txt" />
-    <Text Include="..\shaders\billBoardgs.txt" />
-    <Text Include="..\shaders\billBoardvs.txt" />
-    <Text Include="..\shaders\fboDOFfs.txt" />
-    <Text Include="..\shaders\fboDOFvs.txt" />
-    <Text Include="..\shaders\fboGLOWfs.txt" />
-    <Text Include="..\shaders\fboGLOWvs.txt" />
-    <Text Include="..\shaders\fboRBfs.txt" />
-    <Text Include="..\shaders\fboRBvs.txt" />
-    <Text Include="..\shaders\fs.txt" />
-    <Text Include="..\shaders\psfs.txt" />
-    <Text Include="..\shaders\psvs.txt" />
-    <Text Include="..\shaders\skyBoxfs.txt" />
-    <Text Include="..\shaders\skyBoxvs.txt" />
-    <Text Include="..\shaders\uniforms.txt" />
-    <Text Include="..\shaders\vs.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

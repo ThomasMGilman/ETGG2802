@@ -25,6 +25,7 @@ namespace{
 "in vec2 v_texCoord;\n"
 "out vec4 color;\n"
 "#define MAX_BLUR_RADIUS 30\n"
+"uniform int isHDR;\n"
 "uniform float blurWeights[MAX_BLUR_RADIUS];\n"
 "uniform int blurRadius;\n"
 "uniform vec2 blurDeltas;\n"
@@ -37,7 +38,10 @@ namespace{
 "        color += blurWeights[i] * texture( tex, vec3( v_texCoord - i * blurDeltas , blurSourceSlice ) );\n"
 "        color += blurWeights[i] * texture( tex, vec3( v_texCoord + i * blurDeltas , blurSourceSlice ) );\n"
 "    }\n"
-"    color.rgb *= blurMultiplier;\n"
+"    if(isHDR > 0)\n"
+"       color.b *= blurMultiplier;\n"
+"    else\n"
+"       color.rgb *= blurMultiplier;\n"
 "    color.a=1.0;\n"
 "}\n";
 
@@ -138,6 +142,7 @@ void Framebuffer::init(int width, int height, const std::vector<Framebuffer::Att
             case GL_RGBA16:
             case GL_RGBA16I:
             case GL_RGBA16UI:
+            case GL_RGBA16F:
             case GL_RGBA32F:
             case GL_RG8:
             case GL_RG8I:
@@ -145,6 +150,7 @@ void Framebuffer::init(int width, int height, const std::vector<Framebuffer::Att
             case GL_RG16:
             case GL_RG16I:
             case GL_RG16UI:
+            case GL_RG16F:
             case GL_RG32F:
             case GL_R8:
             case GL_R8I:
@@ -152,6 +158,7 @@ void Framebuffer::init(int width, int height, const std::vector<Framebuffer::Att
             case GL_R16:
             case GL_R16I:
             case GL_R16UI:
+            case GL_R16F:
             case GL_R32F:
                 efmt = GL_RGBA;
                 etype = GL_UNSIGNED_BYTE;
@@ -238,7 +245,7 @@ void Framebuffer::dump(std::string filename){
     }
 }
    
-void Framebuffer::blur(unsigned textureIndex, unsigned slice, int radius, float multiplier){
+void Framebuffer::blur(unsigned textureIndex, unsigned slice, int radius, float multiplier, int isHDR){
     
          
     if( textureIndex >= (unsigned) textures.size() )
@@ -275,6 +282,7 @@ void Framebuffer::blur(unsigned textureIndex, unsigned slice, int radius, float 
     blurProgram->use();
     
     //set constants for blur operations
+    Program::setUniform("isHDR", isHDR);
     Program::setUniform("blurMultiplier",  multiplier );
     Program::setUniform("blurWeights[0]", computeBlurWeights(radius) );
     Program::setUniform("blurRadius", radius );

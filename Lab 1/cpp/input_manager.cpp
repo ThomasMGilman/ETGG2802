@@ -93,6 +93,14 @@ void InputManager::key_down(int k, float elapsed)
         if (k == SDLK_u && *dataToManipulate > (int)MIN_BLUR_RAD)
             *dataToManipulate -= 1;
     }
+    if (GAME_STATE->contains_uniform("isHDR"))
+    {
+        dataToManipulate = GAME_STATE->get_uniform("isHDR");
+        if (k == SDLK_x && *dataToManipulate == 0)
+            *dataToManipulate = 1;
+        else if (k == SDLK_x && *dataToManipulate == 1)
+            *dataToManipulate = 0;
+    }
     if (k == SDLK_p)
         GAME_STATE->set_print_scene();
 
@@ -107,6 +115,8 @@ void InputManager::key_down(int k, float elapsed)
     }
     if (k == SDLK_t)
         GAME_STATE->debug_print_uniforms();
+    if (k == SDLK_z)
+        GAME_STATE->set_print_scene();
 }
 
 void InputManager::key_up(int k, float elapsed)

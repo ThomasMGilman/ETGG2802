@@ -58,7 +58,7 @@ public:
         @param radius The blur radius
         @param multiplier This value is multiplied with each pixel value to brighten or dim it.
     */
-    void blur(unsigned textureNumber, unsigned sliceNumber, int radius, float multiplier);
+    void blur(unsigned textureNumber, unsigned sliceNumber, int radius, float multiplier, int isHDR);
 
     void copyTo(Framebuffer& otherFBO);
   

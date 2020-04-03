@@ -11,4 +11,6 @@ public:
 	Enemy(vec3 pos);
 
 	void draw() override;
+
+	void stencil_draw() override;
 };

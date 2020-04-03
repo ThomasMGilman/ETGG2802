@@ -1,0 +1,23 @@
+layout(points) in;
+layout(triangle_strip, max_vertices=4) out;
+
+out vec2 g_texcoord;
+
+void emitPoint(vec4 center, float posX, float posY, float texX, float texY)
+{
+	vec4 p = center + vec4(posX, posY, 0, 0);
+	vec2 t = vec2(texX, texY);
+	gl_Position = p * projMatrix;
+	g_texcoord = t;
+	EmitVertex();
+}
+
+void main()
+{
+	vec4 center = gl_in[0].gl_Position;
+	center *= viewMatrix;
+	emitPoint(center, -halfBoardSize.x, halfBoardSize.y, 0, 1);
+	emitPoint(center, halfBoardSize.x, halfBoardSize.y, 1, 1);
+	emitPoint(center, -halfBoardSize.x, -halfBoardSize.y, 0, 0);
+	emitPoint(center, halfBoardSize.x, -halfBoardSize.y, 1, 0);
+}

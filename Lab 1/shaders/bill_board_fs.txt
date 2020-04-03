@@ -1,0 +1,70 @@
+in vec2 g_texcoord;
+
+layout(location=0) out vec4 color;
+layout(binding=0) uniform sampler2DArray tex;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////// Color Space Conversions
+
+void convert_sRGB_to_XYZ(inout vec4 c){
+    c = vec4(
+        0.4124564*c.r + 0.3575761*c.g + 0.1804375*c.b,
+        0.2126729*c.r + 0.7151522*c.g + 0.0721750*c.b,
+        0.0193339*c.r + 0.1191920*c.g + 0.9503041*c.b,
+        c.a
+    );
+}
+
+void convert_XYZ_to_sRGB(inout vec4 c)
+{
+    c = vec4(
+            3.2404542*c.x + -1.5371385*c.y + -0.4985314*c.z,
+            -0.969266*c.x + 1.8760108*c.y + 0.0415560*c.z,
+            0.0556434*c.x + -0.204259*c.y + 1.0572252*c.z,
+            c.a
+        );
+}
+
+void convert_XYZ_to_xyY(inout vec4 c)
+{
+    float denom = c.x + c.y + c.z;
+    if(denom != 0)
+    {
+        float x = c.x / denom;
+        float y = c.y / denom;
+        float Y = c.y;
+        c = vec4(x, y, Y, c.a);
+    }
+}
+
+void convert_xyY_to_XYZ(inout vec4 c)
+{
+    float X = 0, Y = 0, Z = 0;
+    if(c.y != 0)
+    {
+        Y = c.z;
+        X = (Y*c.x) / c.y;
+        Z = (Y*(1 - c.x - c.y)) / c.y;
+    }
+    c = vec4(X, Y, Z, c.a);
+}
+
+void convert_xyY_to_RGB(inout vec4 c)
+{
+    convert_xyY_to_XYZ(c);
+    convert_XYZ_to_sRGB(c);
+}
+
+void convert_RGB_to_xyY(inout vec4 c)
+{
+    convert_sRGB_to_XYZ(c);
+    convert_XYZ_to_xyY(c);
+}
+
+void main()
+{
+	color = texture(tex, vec3(g_texcoord, 0.0));
+	if ( color.a <= 0.01)
+		discard;
+    if(isHDR > 0)
+        convert_RGB_to_xyY(color);
+}

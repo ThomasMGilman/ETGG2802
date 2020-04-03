@@ -60,6 +60,31 @@ GameObject::~GameObject()
 
 }
 
+void GameObject::set_using_stencil_buffer(int forceStencilColorFlag, vec4 forceColor, vec3 stencilScale,
+	GLenum firstSFAction, GLenum firstZFAction, GLenum firstZPAction,
+	GLenum firstStencilFunc, GLint firstStencilReference, GLuint firstStencilMask,
+	GLenum secondSFAction, GLenum secondZFAction, GLenum secondZPAction,
+	GLenum secondStencilFunc, GLint secondStencilReference, GLuint secondStencilMask)
+{
+	usingStencilBuffer = true;
+	this->forceStencilColorFlag = forceStencilColorFlag;
+	this->stencilColor = forceColor;
+	this->stencilScale = stencilScale;
+	this->firstStencilFunc = firstStencilFunc;
+	this->firstStencilReference = firstStencilReference;
+	this->firstStencilMask = firstStencilMask;
+	this->firstSFAction = firstSFAction;
+	this->firstZFAction = firstZFAction;
+	this->firstZPAction = firstZPAction;
+
+	this->secondStencilFunc = secondStencilFunc;
+	this->secondStencilReference = secondStencilReference;
+	this->secondStencilMask = secondStencilMask;
+	this->secondSFAction = secondSFAction;
+	this->secondZFAction = secondZFAction;
+	this->secondZPAction = secondZPAction;
+}
+
 void GameObject::set_uniforms()
 {
 	Program::setUniform("worldMatrix", this->worldMat);
@@ -70,4 +95,26 @@ void GameObject::draw_setup()
 {
 	this->update_world_mat();
 	this->set_uniforms();
+}
+
+void GameObject::setup_stencil_first_draw()
+{
+	glStencilFunc(firstStencilFunc, firstStencilReference, firstStencilMask);
+	glStencilOp(firstSFAction, firstZFAction, firstZPAction);
+}
+
+void GameObject::setup_stencil_second_draw()
+{
+	glStencilFunc(secondStencilFunc, secondStencilReference, secondStencilMask);
+	glStencilOp(secondSFAction, secondZFAction, secondZPAction);
+	Program::setUniform("worldMatrix", scaling(get_stencil_scale()) * this->worldMat);
+	Program::setUniform("forceStencilColorFlag", forceStencilColorFlag);
+	Program::setUniform("forceStencilColor", stencilColor);
+}
+
+void GameObject::cleanup_stencil_draw()
+{
+	glStencilFunc(GL_ALWAYS, 1, 0xff);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	Program::setUniform("forceStencilColorFlag", 0);
 }

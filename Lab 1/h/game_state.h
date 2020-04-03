@@ -16,71 +16,25 @@
 #include <ParticleSystem.h>
 #include <input_manager.h>
 #include <bill_board_manager.h>
+#include <uniform_data.h>
 #include <global_variables.h>
 
 #define GAME_STATE GameState::getSingletonPtr()
-
-using dataVariant = std::variant<int, float>;
-
-struct uniformData {
-    const std::type_info* dataType;
-    dataVariant d;
-    bool setManually = false;
-
-    void operator =(int val) { d = val; };
-    void operator +=(int val) { d = std::get<int>(d) + val; };
-    void operator -=(int val) { d = std::get<int>(d) - val; };
-    void operator *=(int val) { d = std::get<int>(d) * val; };
-    void operator /=(int val) { d = std::get<int>(d) + val; };
-    bool operator ==(int val) { return std::get<int>(d) == val; };
-    bool operator !=(int val) { return std::get<int>(d) != val; };
-    bool operator >(int val) { return std::get<int>(d) > val; };
-    bool operator >=(int val) { return std::get<int>(d) >= val; };
-    bool operator <(int val) { return std::get<int>(d) < val; };
-    bool operator <=(int val) { return std::get<int>(d) <= val; };
-
-    void operator =(float val) { d = val; };
-    void operator +=(float val) { d = std::get<float>(d) + val; };
-    void operator -=(float val) { d = std::get<float>(d) - val; };
-    void operator *=(float val) { d = std::get<float>(d) * val; };
-    void operator /=(float val) { d = std::get<float>(d) + val; };
-    bool operator ==(float val) { return std::get<float>(d) == val; };
-    bool operator !=(float val) { return std::get<float>(d) != val; };
-    bool operator >(float val) { return std::get<float>(d) > val; };
-    bool operator >=(float val) { return std::get<float>(d) >= val; };
-    bool operator <(float val) { return std::get<float>(d) < val; };
-    bool operator <=(float val) { return std::get<float>(d) <= val; };
-};
 
 class GameState : public Singleton<GameState>
 {
 private:
     // Uniform Variables
-    std::map<std::string, uniformData> uniformInfo
-    {
-        {"shininess", {&typeid(float), 2.0f}},
-        {"ambientColor", {&typeid(float), 0.1f}},
-        {"roughness", {&typeid(float), 64.0f}},
-        {"metallicity", {&typeid(float), 0.0f}},
-        {"focalDistance", {&typeid(float), 100.0f}},
-        {"doRadialBlur", {&typeid(int), 0}},
-        {"blurRadius", {&typeid(int), 4, true}},
-        {"blurMultiplier", {&typeid(float), 1.1f, true}},
-        {"doGlow", {&typeid(int), 0}},
-        {"glowRadius", {&typeid(int), 9, true}},
-        {"glowMultiplier", {&typeid(float), 1.1f, true}},
-        {"glowThreshold", {&typeid(float), 2.0f}}
-    };
+    std::map<std::string, uniformData*> uniformInfo;
+
     // GL Program shaders
-    Program mainProg = { "vs.txt", "fs.txt" };
-    Program fboDOFProg = { "fboDOFvs.txt", "fboDOFfs.txt" };
-    Program fboGLOWProg = { "fboGLOWvs.txt", "fboGLOWfs.txt" };
-    Program skyBoxProg = { "skyBoxvs.txt", "skyBoxfs.txt" };
-    Program billBoardProg = { "billBoardvs.txt", "billBoardgs.txt", "billBoardfs.txt" };
+    Program mainProg = { "main_vs.txt", "main_fs.txt" };
+    Program postProcessProg = { "post_process_vs.txt", "post_process_fs.txt" };
+    Program skyBoxProg = { "sky_box_vs.txt", "sky_box_fs.txt" };
 
     // Frame Buffers
-    Framebuffer fbo{ SCREENWIDTH, SCREENHEIGHT, 2, GL_RGBA8 };
-    Framebuffer fbo1{ SCREENWIDTH, SCREENHEIGHT, 1, GL_RGBA8 };
+    Framebuffer fbo{ SCREENWIDTH, SCREENHEIGHT, 2, GL_RGBA32F };
+    Framebuffer fbo1{ SCREENWIDTH, SCREENHEIGHT, 1, GL_RGBA32F };
 
     // Samplers
     Sampler samp;
@@ -131,7 +85,18 @@ protected:
 
     void setup_frame_buffers();
 
+    void setup_uniform_map();
+
     void debug_output_scene();
+
+    template<typename T>
+    void make_uniform(std::string uniformName, T value, bool setManually = false)
+    {
+        if (uniformInfo.find(uniformName) == uniformInfo.end())
+            uniformInfo[uniformName] = new uniformData(uniformName, &typeid(T), value, setManually);
+        else
+            throw new std::runtime_error(("Cannot have duplicate uniforms!! " + uniformName).c_str());
+    }
 
 public:
 
@@ -167,18 +132,15 @@ public:
         return std::get<T>(get_uniform(uniform_name)->d);
     }
 
-    void set_uniform(std::map<std::string, uniformData>::iterator uniformEntryPointer);
-
     void set_uniform(std::string uniform_name);
 
     template<typename T>
     void set_uniform(std::string uniform_name, T newVal)
     {
-        std::map<std::string, uniformData>::iterator uniformEntryPointer = uniformInfo.find(uniform_name);
+        std::map<std::string, uniformData*>::iterator uniformEntryPointer = uniformInfo.find(uniform_name);
         if (uniformEntryPointer == uniformInfo.end())
-            throw new std::exception(("Unfiorm: " + uniform_name + " Does not exist in uniformInfo!!").c_str());
-        uniformEntryPointer->second = newVal;
-        set_uniform(uniformEntryPointer);
+            throw new std::runtime_error(("Unfiorm: " + uniform_name + " Does not exist in uniformInfo!!").c_str());
+        uniformEntryPointer->second->set_uniform(newVal);
     };
 
 	void set_uniforms();

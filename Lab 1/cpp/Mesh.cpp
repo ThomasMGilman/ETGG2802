@@ -309,6 +309,7 @@ void Mesh::drawHelper( GLuint vao, unsigned multiplier, GLenum mode, GLenum type
         else if (mode == GL_POINT)
             glDrawArrays(mode, 0, 1);
     }
+    glBindVertexArray(0);
 }
 
 Mesh::~Mesh(){

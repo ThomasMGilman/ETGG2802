@@ -5,7 +5,7 @@
 
 ParticleSystem::ParticleSystem(vec3 origin){
     if(ParticleSystem::vao == 0){
-        ParticleSystem::prog = new Program("psvs.txt", "billBoardgs.txt", "psfs.txt");
+        ParticleSystem::prog = new Program("particle_system_vs.txt", "bill_board_gs.txt", "particle_system_fs.txt");
         ParticleSystem::tex = new ImageTexture2DArray("nova.png");
         GLuint tmp[1]; 
         glGenVertexArrays(1,tmp);

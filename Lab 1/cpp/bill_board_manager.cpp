@@ -5,6 +5,8 @@ void BillBoardManager::setup_vao()
 {
     if (BillBoardManager::vao == 0)
     {
+        BillBoardManager::prog = new Program( "bill_board_vs.txt", "bill_board_gs.txt", "bill_board_fs.txt" );
+
         GLuint tmp[1];
         glGenVertexArrays(1, tmp);
         BillBoardManager::vao = tmp[0];
@@ -40,7 +42,7 @@ BillBoardManager::~BillBoardManager()
 
 void BillBoardManager::setUniforms()
 {
-    prog.setUniform("halfBoardSize", halfSize.xy());
+    prog->setUniform("halfBoardSize", halfSize.xy());
 }
 
 void BillBoardManager::checkDirty()
@@ -71,7 +73,7 @@ void BillBoardManager::draw()
         glDepthMask(false);
 
         auto oldprog = Program::current;
-        this->prog.use();
+        this->prog->use();
         this->diffuse_texture->bind(0);
 
         setUniforms();
@@ -98,3 +100,5 @@ GLuint BillBoardManager::vao = 0;
 Buffer* BillBoardManager::positionBuffer = 0;
 
 Buffer* BillBoardManager::ubo = 0;
+
+Program* BillBoardManager::prog = nullptr;

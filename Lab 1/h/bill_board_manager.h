@@ -5,6 +5,7 @@ class BillBoardManager {
 private:
     static GLuint vao;
     static Buffer* positionBuffer, * ubo;
+    static Program* prog;
     std::shared_ptr<ImageTexture2DArray> diffuse_texture;
 
     static const int numObjsAllowed = 100;
@@ -17,8 +18,6 @@ public:
 
     std::vector<vec4> positions, velocities;
     std::vector<int> lifetimes;
-
-    Program prog{ "billBoardvs.txt", "billBoardgs.txt", "billBoardfs.txt" };
     
     BillBoardManager(std::shared_ptr<ImageTexture2DArray> diffuse_tex, vec3 size);
 

@@ -9,8 +9,21 @@ Bullet::Bullet(vec3 startingPoint, vec3 vel) : GameObject(startingPoint, vec3(.1
 
 void Bullet::draw(){
     this->draw_setup();
-    std::cout << "This matrix: " << this->get_world_mat() << std::endl;
+    //std::cout << "This matrix: " << this->get_world_mat() << std::endl;
     Bullet::mesh->draw();
+    stencil_draw();
+}
+
+void Bullet::stencil_draw()
+{
+    if (using_stencil_buffer())
+    {
+        setup_stencil_first_draw();
+        Bullet::mesh->draw();
+        setup_stencil_second_draw();
+        Bullet::mesh->draw();
+        cleanup_stencil_draw();
+    }
 }
 
 std::shared_ptr<ImageTexture2DArray> Bullet::get_diffuse_texture()
