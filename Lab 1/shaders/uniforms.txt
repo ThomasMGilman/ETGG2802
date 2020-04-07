@@ -51,6 +51,9 @@ layout(std140, row_major) uniform Uniforms {
     int doGlow;
     float glowThreshold;
 
+    // For Noise
+    int doNoise;
+
     // For BillBoard
     vec2 halfBoardSize;
     vec2 billBoardSize;

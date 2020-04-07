@@ -1,1 +1,20 @@
-﻿  Lab 1.vcxproj -> D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\x64\Debug\Lab 1.exe
+﻿  game_state.cpp
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\h\dungeon.h(13,32): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\game_state.cpp(4,35): warning C4356: 'Singleton<GameState>::msSingleton': static data member cannot be initialized via derived class
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\game_state.cpp(101,28): warning C4018: '<': signed/unsigned mismatch
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\game_state.cpp(176,29): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\game_state.cpp(177,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\game_state.cpp(180,25): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\game_state.cpp(187,30): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\h\bill_board_manager.h(38,1): warning C4244: '-=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\cpp\game_state.cpp(184): message : see reference to function template instantiation 'void BillBoardManager::update<GameState::update::<lambda_42e8f38bc858ee9296179d69c5837124>>(float,const T &)' being compiled
+          with
+          [
+              T=GameState::update::<lambda_42e8f38bc858ee9296179d69c5837124>
+          ]
+D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\h\dungeon.h(15): warning C4715: 'Dungeon::get_light_position': not all control paths return a value
+  Lab 1.vcxproj -> D:\School\Programs\ETGG 2802_1 Graphics 2\Lab 1\x64\Debug\Lab 1.exe

@@ -15,7 +15,179 @@ layout(binding=2) uniform sampler2DArray metallicRoughnessTexture;
 layout(binding=3) uniform sampler2DArray bumpmapTexture;
 layout(binding=4) uniform samplerCube envMap;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////// Color Space Conversions
+layout(binding=8) uniform sampler2DArray permutationTex;
+layout(binding=9) uniform sampler2DArray gradientTex;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Permutation and Gradient Functions /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int get_permutation(int idx)
+{
+    return int(texelFetch(permutationTex, ivec3((idx) & 255, 0, 0), 0).r);
+}
+
+vec4 get_gradient(int idx)
+{
+    return texelFetch(gradientTex, ivec3((idx) & 255, 0, 0),0);
+}
+
+float access_gradient(float vf)
+{
+    int v = int(vf);
+    return get_gradient( get_permutation(v) ).x;
+}
+
+vec2 access_gradient(vec2 vf)
+{
+    ivec2 v = ivec2(vf);
+    return get_gradient( get_permutation(v.x + get_permutation(v.y)) ).xy;
+}
+
+vec3 access_gradient(vec3 vf)
+{
+    ivec3 v = ivec3(vf);
+    return get_gradient( get_permutation(v.x + get_permutation(v.y + get_permutation(v.z))) ).xyz;
+}
+
+vec4 access_gradient(vec4 vf)
+{
+    ivec4 v = ivec4(vf);
+    return get_gradient( get_permutation(v.x + get_permutation(v.y + get_permutation(v.z + get_permutation(v.w)))) );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Noise functions /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+float randomNumber(inout uint state)
+{
+    state ^= (state<<13);
+    state ^= (state>>17);
+    state ^= (state<<15);
+    return (state & 0x7fffffff) / float(0x7fffffff);
+}
+
+uint wangHash(uint v)
+{
+    v = 9*( (v >> 16 ) ^ (v ^ 61));
+    v ^= (v>>4);
+    v = v * 668265261;
+    return v ^ (v>>15);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// 3D Noise /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+vec3 gradient(vec3 v1)
+{
+    ivec3 v = ivec3(v1) & 0xfff; 
+    uint state = wangHash((v.z << 24) | (v.y << 12) | v.x);
+    float vx = randomNumber(state);
+    float vy = randomNumber(state);
+    float vz = randomNumber(state);
+    return normalize(vec3(vx, vy, vz) - vec3(0.5));
+}
+
+float noise(vec3 p)
+{
+    float t, x = p.x, y = p.y, z = p.z;
+    float d[8], a[4], b[2];
+    vec3 q[8];
+    q[0] = vec3(floor(x), ceil(y), floor(z));
+    q[1] = vec3(ceil(x), ceil(y), floor(z));
+    q[2] = vec3(floor(x), floor(y), floor(z));
+    q[3] = vec(ceil(x), floor(y), floor(z));
+    q[4] = vec3(floor(x), ceil(y), ceil(z));
+    q[5] = vec3(ceil(x), ceil(y), ceil(z));
+    q[6] = vec3(floor(x), floor(y), ceil(z));
+    q[7] = vec3(ceil(x), floor(y), ceil(z));
+    for(int i = 0; i < 8; i++)
+        d[i] = dot(gradient(q[i]), p - q[i]);
+
+    t = smoothstep(0.0, 1.0, fract(p.x));
+    a[0] = mix(d[0], d[1], t);
+    a[1] = mix(d[2], d[3], t);
+    a[2] = mix(d[4], d[5], t);
+    a[3] = mix(d[6], d[7], t);
+
+    t = smoothstep(0.0, 1.0, fract(p.y));
+    b[0] = mix(a[1], a[0], t);
+    b[1] = mix(a[3], a[2], t);
+
+    return mix(b[0], b[1], smoothstep(0.0, 1.0, fract(p.z)));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// 2D Noise /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+vec2 gradient(vec2 v1)
+{
+    //convert to int and keep low 16 bits
+    ivec2 v = ivec2(v1) & 0xffff;
+
+    uint state = wangHash((v.y << 16) | v.x) // hash
+    float vx = randomNumber(state); //rand x
+    float vy = randomNumber(state); //rand y
+
+    //put in range -0.5 -> 0.5 and make unit length
+    return normalize(vec2(vx, vy) - vec2(0.5));
+}
+
+float noise(vec2 p)
+{
+    float x = p.x, y = p.y;
+    vec2 q[4];
+    q[0] = vec2(floor(x), ceil(y));
+    q[1] = vec2(ceil(x), ceil(y));
+    q[2] = vec2(floor(x), floor(y));
+    q[3] = vec2(ceil(x), floor(y));
+    float d[4];
+    for(int i = 0; i < 4; i++)
+    {
+        vec2 g = gradient(q[i]);
+        vec2 v = p - q[i];
+        d[i] = dot(g, v);
+    }
+    float t = smoothstep(0.0, 1.0, fract(p.x));
+    float a[2];
+    a[0] = mix(d[0], d[1], t);
+    a[1] = mix(d[2], d[3], t);
+    t = fract(p.y);
+    t = smoothstep(0.0, 1.0, t);
+    return mix(a[1], a[0], t);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// 1D Noise /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+float gradient(float v1)
+{
+    int v = int(v1) & 0xfffff;
+    uint state = wangHash(v);
+    return (float(randomNumber(state) < 0.5) - 0.5)*2.0;
+}
+
+float noise(float p)
+{
+    q[0] = floor(p);
+    q[1] = ceil(p);
+    float d[2];
+    for(int i = 0; i < 2; i++)
+    {
+        float g = gradient(q[i]);
+        float v = p - q[i];
+        d[i] = dot(g, v);
+    }
+    return mix(d[0], d[1], smoothstep(0.0, 1.0, fract(p)));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Color Space Conversions /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void convert_sRGB_to_XYZ(inout vec4 c){
     c = vec4(
@@ -72,10 +244,13 @@ void convert_RGB_to_xyY(inout vec4 c)
     convert_XYZ_to_xyY(c);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////// Computations
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Computations /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //Fresnel Computation for microfacets of material
 //Calculates the shininess off the materail at the given angle and its color
-vec3 fresnel_Computation(float cosPhi, vec3 F0)
+vec3 lunaFresnel(float cosPhi, vec3 F0)
 {
     vec3 one_minus_F0 = vec3(1.0) - F0;
     return F0 + one_minus_F0 * pow(1.0 - cosPhi, 5.0);
@@ -86,7 +261,7 @@ vec3 fresnel_Computation(float cosPhi, vec3 F0)
 vec3 schlickFresnel(float Mu, float cosPhi, vec3 baseColor)
 {
     vec3 F0 = mix(vec3(0.04), baseColor, Mu);
-    return F0 + fresnel_Computation(cosPhi, F0);
+    return lunaFresnel(cosPhi, F0);
 }
 
 vec3 cookTorrenceFresnel(float cosPhi, vec3 specularColor)
@@ -110,17 +285,20 @@ float smithJoint_GGX_Approximation(float cosTheta_in, float cosTheta_out, float 
 {
     
     return 1.0 / ( 2 * 
-            (cosTheta_in * sqrt(RhoSqrd + (1 - RhoSqrd) * cosTheta_out * cosTheta_out) + 
-                cosTheta_out * sqrt(RhoSqrd + (1 - RhoSqrd) * cosTheta_in * cosTheta_in)));
+            (cosTheta_in * sqrt(RhoSqrd + (1.0 - RhoSqrd) * cosTheta_out * cosTheta_out) + 
+                cosTheta_out * sqrt(RhoSqrd + (1.0 - RhoSqrd) * cosTheta_in * cosTheta_in)));
 }
 
 float trowbridge_Reitz_Computation(float cosPsi, float Rho, float RhoSqrd)
 {
-    float tmp = Rho / (1 + cosPsi * cosPsi * (RhoSqrd - 1));
-    return (1/PI) * tmp * tmp;
+    float tmp = Rho / (1.0 + cosPsi * cosPsi * (RhoSqrd - 1.0));
+    return 1.0 / PI * tmp * tmp;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////// Normal from Bumpmap texture Calculation
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Normal from Bumpmap texture Calculation /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void calculateBumpNormal(inout vec3 normal)
 {
     //sample bumpmap texture and convert to TBN
@@ -139,22 +317,28 @@ void calculateBumpNormal(inout vec3 normal)
     normal = (normalize(vec4(normal, 0.0)*worldMatrix)).xyz;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////// Diffuse Calculations
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Diffuse Calculations /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 vec3 lambert(float cosTheta_in, vec3 baseColor)
 {
-    return max(0.0, cosTheta_in) * baseColor;
+    return cosTheta_in * baseColor;
 }
 
 //F = schlick fresnelComputation;
 vec3 schlickDiffuse(vec3 F, vec3 baseColor, float Mu, float cosTheta_in)
 {
     vec3 d = mix(0.96 * baseColor, vec3(0), Mu);            //Scale Diffuse for energy conservation
-    return cosTheta_in * (vec3(1.0)-F) * (d / PI);
+    return (cosTheta_in * (vec3(1.0)-F) * d) / PI;
 }
 
 //Sigma = Roughness Factor
-vec3 orenNayar(float cosTheta_in, float cosTheta_out, float sigma, vec3 L, vec3 V, vec3 N, vec3 diffuseColor)
+vec3 orenNayar(float cosTheta_in, float cosTheta_out,
+                float sigma, vec3 L, vec3 V, vec3 N, vec3 diffuseColor)
 {
+    cosTheta_out = max(0.0, cosTheta_out);
+    cosTheta_in = max(0.0, cosTheta_in);
     float sinTheta_out = sqrt(1 - cosTheta_out * cosTheta_out);
     float sinTheta_in = sqrt(1 - cosTheta_in * cosTheta_in);
     float sinA, tanB;
@@ -187,12 +371,15 @@ vec3 minnaert(float cosTheta_out, float cosTheta_in, float sigma, vec3 baseColor
     return pow(cosTheta_out * cosTheta_in, sigma - 1.0) * baseColor;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////// Specular Calculations
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Specular Calculations /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Base Phong Specular Calculation
 vec3 phong(float cosTheta_out, vec3 L, vec3 N, vec3 V, vec3 baseColor)
 {
-    if (cosTheta_out <= 0.0) return vec3(0.0);
-
+    if(cosTheta_out < 0)
+        return vec3(0);
     vec3 R = reflect(-L, N);
     float dp = max(0.0, dot(V,R));
     return baseColor * pow(dp, shininess);
@@ -202,16 +389,16 @@ vec3 phong(float cosTheta_out, vec3 L, vec3 N, vec3 V, vec3 baseColor)
 // Uses Fresnel Calculation for small scale roughness of materials at angle based on microfacets
 vec3 luna(float cosTheta_out, float cosPsi, float cosPhi, vec3 baseColor)
 {
-    if (cosTheta_out <= 0.0) return vec3(0.0);
-    return fresnel_Computation(cosPhi, baseColor) * (shininess + 8.0)/8.0 * pow(cosPsi, shininess);
+    if(cosTheta_out <= 0)
+        return vec3(0);
+
+    return lunaFresnel(cosPhi, baseColor) * (shininess + 8.0)/8.0 * pow(cosPsi, shininess);
 }
 
 vec3 schlickSpecular(vec3 F, float Rho, float cosPhi, float cosPsi,
                     vec3 baseColor, float cosTheta_in,
                     float cosTheta_out)
 {
-    if (cosTheta_out <= 0.0) return vec3(0.0);
-
     float RhoSqrd = Rho*Rho;
     float V = smithJoint_GGX_Approximation(cosTheta_in, cosTheta_out, RhoSqrd);
     float D = trowbridge_Reitz_Computation(cosPsi, Rho, RhoSqrd);
@@ -220,18 +407,19 @@ vec3 schlickSpecular(vec3 F, float Rho, float cosPhi, float cosPsi,
 
 vec3 cookTorrance(vec3 baseColor, float roughness, float cosTheta_in, float cosTheta_out, float cosPsi, float cosPhi)
 {
-    if (cosTheta_out <= 0.0) return vec3(0.0);
-
     vec3 F = cookTorrenceFresnel(cosPhi, baseColor);
     float A = clamp(2.0 * cosPsi * min(cosTheta_out, cosTheta_in) / cosPhi, 0.0, 1.0);
 
     float cosPsiSqrd = cosPsi * cosPsi;
     float t = roughness * (1.0 - 1.0 / cosPsiSqrd);
-    float M = roughness * exp(t) / (4.0 * cosPsiSqrd * cosPsiSqrd);
-    return M * F * vec3(A) / (cosTheta_out * cosTheta_in * vec3(PI));
+    float M = (roughness * exp(t)) / (4.0 * cosPsiSqrd * cosPsiSqrd);
+    return vec3(M) * F * vec3(A) / (cosTheta_out * cosTheta_in * vec3(PI));
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////// Lighting and Color Calculations
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// Lighting and Color Calculations /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void computeIllumination(vec3 lightPosition, float posOrDir, 
                             vec3 spotDirection, float cosMaxSpotAngle,
                             vec3 lightColor, float cosSpotFadeAngle,
@@ -242,22 +430,23 @@ void computeIllumination(vec3 lightPosition, float posOrDir,
     // Lighting
     vec3 L = lightPosition.xyz - posOrDir * v_worldPos;
     float lightDistance = max(0.0001, length(L));           //prevents division by 0
-    L = normalize(1.0 / lightDistance * L);
+    L = 1.0 / lightDistance * L;
+
     float A = 1.0 / (attenuation[0] + lightDistance * (attenuation[1] + lightDistance * attenuation[2]));
     float spotDot = dot(-L, spotDirection);
     float spotF = clamp((spotDot - cosMaxSpotAngle) / (cosSpotFadeAngle - cosMaxSpotAngle), 0.0, 1.0);
-    vec3 tmp = (spotF * lightColor * A);
+    vec3 tmp = spotF * lightColor * A;
 
     // Angles
-    float cosTheta_out = dot(N, V);            //Angle between N and V
-    float cosTheta_in = dot(N, L);             //Angle between N and L
-    
-    vec3 H = normalize(L + V);                 //Half Vector between L and V
-    float cosPhi = dot(V, H);                  //Angle between V and H
-    float cosPsi = dot(N, H);                  //Angle between H and N
+    float cosTheta_out = dot(N, V);  //Angle between N and V
+    float cosTheta_in = dot(N, L);   //Angle between N and L
+
+    vec3 H = normalize(L + V);       //Half Vector between L and V
+    float cosPhi = dot(V, H);        //Angle between V and H
+    float cosPsi = dot(H, N);        //Angle between H and N
 
     //SchlickFresnel
-    vec3 F = schlickFresnel(Mu, cosPhi, baseColor);
+    //vec3 F = schlickFresnel(Mu, cosPhi, baseColor);
 
     //DiffuseCalculations
     //diffuseAmount = tmp * lambert(cosTheta_in, baseColor);
@@ -289,8 +478,10 @@ void computeTotalIllumination(float Rho, float Mu, vec3 V, vec3 N, vec3 baseColo
         totalSpecularAmount += spec;
     }
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////// MAIN /////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////// Main
 void main(){
     if( forceStencilColorFlag != 0.0)
     {
@@ -298,7 +489,6 @@ void main(){
         glow = vec4(0);
         return;
     }
-
     // Get Normal and calculate surface Normal
     vec3 N = normalize(v_normal);
     calculateBumpNormal(N);
@@ -317,8 +507,8 @@ void main(){
     vec4 emissionTextureColor = texture( emissionTexture, vec3(v_texcoord,sliceNumber) );
     vec4 roughnessTextureColor = texture( metallicRoughnessTexture, vec3(v_texcoord,sliceNumber) );
 
-    float Rho = roughness;//roughnessTextureColor.g;    //Roughness factor
-    float Mu = metallicity;//roughnessTextureColor.b;     //Metallicity factor
+    float Rho = roughness * roughnessTextureColor.g;    //Roughness factor
+    float Mu = metallicity * roughnessTextureColor.b;     //Metallicity factor
 
     computeTotalIllumination(Rho, Mu, V, N, diffuseTextureColor.rgb, totalDiffuseColor, totalSpecularColor);
     color.rgb = ambientColor * diffuseTextureColor.rgb +
@@ -326,6 +516,7 @@ void main(){
               totalSpecularColor +	//optional: multiply specular by texColor
               emissionTextureColor.rgb +
               (metallicity * reflColor);
+    
 
     color.a = diffuseTextureColor.a;
     if(isHDR > 0)

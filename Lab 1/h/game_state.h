@@ -21,6 +21,8 @@
 
 #define GAME_STATE GameState::getSingletonPtr()
 
+float get_random_float(float max = 1.0f, float min = 0.0f);
+
 class GameState : public Singleton<GameState>
 {
 private:
@@ -42,6 +44,9 @@ private:
 
     // Quad to draw to
     FullscreenQuad fsq;
+
+    // Permutation and Gradient tables for noise
+    DataTexture2DArray* permutationTex, *gradientTex;
 
 protected:
     // Managers
@@ -86,6 +91,8 @@ protected:
     void setup_frame_buffers();
 
     void setup_uniform_map();
+
+    void setup_noise_tables();
 
     void debug_output_scene();
 

@@ -3,6 +3,11 @@
 
 GameState* GameState::msSingleton = nullptr;
 
+float get_random_float(float max, float min)
+{
+    return min + static_cast<float>(rand()) / static_cast<float>(RAND_MAX / (max - min));
+}
+
 void GameState::setup_gl_attributes()
 {
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -20,9 +25,13 @@ void GameState::setup_gl_attributes()
 
 void GameState::setup_sample_buffers()
 {
+    // 4 : Environment Map
+    // 8 : Permutation Table
+    // 9 : Gradient Table
+    // 16: Depth Buffer
     for (int i = 0; i < 16; i++)
     {
-        if (i == 4)
+        if (i == 4 || i == 8 || i == 9)
             samplerNearest.bind(i);
         samp.bind(i);
     }
@@ -60,6 +69,24 @@ void GameState::setup_uniform_map()
     make_uniform("toneMaxValue", 5.0f);
     make_uniform("a_lum_val", 0.2f);
     make_uniform("lum_white", 2.0f);
+    make_uniform("doNoise", 0);
+}
+
+void GameState::setup_noise_tables()
+{
+    std::uint8_t permutationTable[256];
+    vec4 gradientTable[256];
+    for (int i = 0; i < 256; i++)
+    {
+        permutationTable[i] = i;
+        gradientTable[i] = vec4(get_random_float(), get_random_float(), 
+            get_random_float(), get_random_float());
+    }
+    std::shuffle(permutationTable, permutationTable + 256, std::minstd_rand());
+    std::shuffle(gradientTable, gradientTable + 256, std::minstd_rand());
+
+    permutationTex = new DataTexture2DArray(256, 1, 1, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, permutationTable);
+    gradientTex = new DataTexture2DArray(256, 1, 1, GL_RGBA32F, GL_RGBA, GL_FLOAT, gradientTable);
 }
 
 void GameState::debug_output_scene()
@@ -88,6 +115,7 @@ GameState::GameState()
     setup_sample_buffers();
     setup_frame_buffers();
     setup_uniform_map();
+    setup_noise_tables();
     mainProg.use();
 
     inputManager = new InputManager();
@@ -192,10 +220,12 @@ void GameState::update(float elapsed)
 
 void GameState::draw()
 {
-    mainProg.use();                   // Set main Program Shader
-    fbo.setAsRenderTarget(true);      // Set FBO as draw target
-    set_uniforms();                   // Set Uniforms
-    envMap.bind(4);                   // Bind SkyBox
+    mainProg.use();                     // Set main Program Shader
+    fbo.setAsRenderTarget(true);        // Set FBO as draw target
+    set_uniforms();                     // Set Uniforms
+    envMap.bind(4);                     // Bind SkyBox
+    permutationTex->bind(8);            // Bind Permutation Table
+    gradientTex->bind(9);               // Bind Gradient Table
 
     dungeon.draw();
     magicLantern.draw();

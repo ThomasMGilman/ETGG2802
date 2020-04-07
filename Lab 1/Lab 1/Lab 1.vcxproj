@@ -65,6 +65,7 @@
     <ClInclude Include="..\h\Texture.h" />
     <ClInclude Include="..\h\Texture2DArray.h" />
     <ClInclude Include="..\h\TextureCube.h" />
+    <ClInclude Include="..\h\torch.h" />
     <ClInclude Include="..\h\uniform_data.h" />
     <ClInclude Include="..\h\utils.h" />
     <ClInclude Include="..\h\white_png.h" />
@@ -74,6 +75,7 @@
     <Text Include="..\shaders\bill_board_fs.txt" />
     <Text Include="..\shaders\bill_board_gs.txt" />
     <Text Include="..\shaders\bill_board_vs.txt" />
+    <Text Include="..\shaders\fire_fs.txt" />
     <Text Include="..\shaders\main_fs.txt" />
     <Text Include="..\shaders\main_vs.txt" />
     <Text Include="..\shaders\particle_system_fs.txt" />
@@ -123,6 +125,7 @@
     <ClCompile Include="..\cpp\Texture.cpp" />
     <ClCompile Include="..\cpp\Texture2DArray.cpp" />
     <ClCompile Include="..\cpp\TextureCube.cpp" />
+    <ClCompile Include="..\cpp\torch.cpp" />
     <ClCompile Include="..\cpp\uniform_data.cpp" />
     <ClCompile Include="..\cpp\utils.cpp" />
     <ClCompile Include="..\cpp\Zip.cpp" />

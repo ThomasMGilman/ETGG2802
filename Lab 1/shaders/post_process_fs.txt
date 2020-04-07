@@ -78,8 +78,7 @@ void toneMap(inout vec4 c)
     //float L_dodging = (L_scale * (1 + (L_scale / (lum_white * lum_white)) )) / (1 + L_scale);
 
     convert_xyY_to_sRGB(c, L_scale);
-    if(c.r < 0)
-        c = vec4(1,0,1,1);
+
     //c = vec3(1.0) - exp(-c * L_scale);//dodging);
     //adjust_gamma(c);
 }
@@ -113,8 +112,8 @@ void main()
 
     color = unb;
 
-    if(color.r < 0 || color.g < 0 || color.b < 0)
-        color = vec4(1,0,1,1);
+    //if(color.r < 0 || color.g < 0 || color.b < 0)
+    //    color = vec4(1,0,1,1);
 
 	//calculate_DOF(unb, bl, d);
 	//calculate_glow(glow);
