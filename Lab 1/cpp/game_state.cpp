@@ -123,22 +123,34 @@ GameState::GameState()
     lightManager->attenuation = vec3(1, 0, 0.25);
 
     // Initialize Bullet Class to get mesh and create BillBoard_BulletManager;
-    Bullet b_init = Bullet(vec3(0), vec3(0));   
-    BB_BulletManager = new BillBoardManager(b_init.get_diffuse_texture(), vec3(1));//b_init.get_scale());
+    BB_BulletManager = new BillBoardManager(Bullet(vec3(0), vec3(0)).get_diffuse_texture(), vec3(1));//b_init.get_scale());
+    BB_TorchManager = new BillBoardManager(std::make_shared<ImageTexture2DArray>("fire.png"), vec3(.025,.75,1), false, true);
 
     for (unsigned i = 0; i < dungeon.get_num_light_positions(); i++)
     {
-        set_light_position(i, dungeon.get_light_position(i), true);
-        std::cout << "LIGHT " << i << ": " << dungeon.get_light_position(i) << "\n";
+        vec3 light_pos = dungeon.get_light_position(i);
+        set_light_position(i, light_pos, true);
+        BB_TorchManager->add(light_pos + vec3(0, .4, 0), vec3(0));
+        std::cout << "LIGHT " << i << ": " << light_pos << "\n";
         set_light_color(i, vec3(1, 1, 1));
     }
 }
 
 GameState::~GameState()
 {
+    // managers
     delete(inputManager);
     delete(lightManager);
+
+    // Billboard managers
     delete(BB_BulletManager);
+    delete(BB_TorchManager);
+
+    // Noise Variables
+    delete(permutationTex);
+    delete(gradientTex);
+
+    // delete stored uniforms
     std::map<std::string, uniformData*>::iterator ud;
     while (ud != uniformInfo.end())
     {
@@ -204,12 +216,17 @@ void GameState::update(float elapsed)
         magicLantern.update(elapsed);
         sBox.update(elapsed);
 
+        for (auto& torch : torches)
+            torch.update(elapsed);
+
         for (auto& cane : candyCanes)
             cane.update(elapsed);
 
         BB_BulletManager->update(elapsed, [this](vec3 p) {
             this->explosions.push_back(ParticleSystem(p));
         });
+
+        BB_TorchManager->update(elapsed, [this](vec3 p) {});
 
         for (auto& explosion : explosions)
             explosion.update(elapsed);
@@ -227,23 +244,24 @@ void GameState::draw()
     permutationTex->bind(8);            // Bind Permutation Table
     gradientTex->bind(9);               // Bind Gradient Table
 
-    dungeon.draw();
-    magicLantern.draw();
-    toothyjaws.draw();
+    dungeon.draw();                     // Dungeon
 
-    for (auto& pos : torches)
-    {
-        Program::setUniform("worldMatrix", translation(pos));
-        torchMesh.draw();
-    }
+    BB_TorchManager->draw();            // Torch Flames
 
-    BB_BulletManager->draw();
+    magicLantern.draw();                // Lantern
 
-    for (auto& x : explosions)
+    toothyjaws.draw();                  // ToothyJaws
+
+    //for (auto& torch : torches)
+    //    torch.draw();
+
+    BB_BulletManager->draw();           // Bullets
+
+    for (auto& x : explosions)          // Explosions
         x.draw();
 
     set_uniform<int>("doGlow", 1);
-    for (auto& cane : candyCanes)
+    for (auto& cane : candyCanes)       // CandyCanes
         cane.draw();
     set_uniform<int>("doGlow", 0);
 

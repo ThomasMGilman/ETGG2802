@@ -1,8 +1,10 @@
 #include <stdafx.h>
+#include <game_state.h>
 #include <torch.h>
 
 Torch::Torch(vec3 pos, bool useNoise) : GameObject(pos)
 {
+    set_using_noise(useNoise);
     if (Torch::mesh == nullptr)
     {
         Torch::mesh = new Mesh("torch.glb");
@@ -17,6 +19,12 @@ Torch::~Torch()
 void Torch::draw()
 {
     auto oldprog = Program::current;
+    Torch::prog->use();
+    draw_setup();
+
+    GAME_STATE->set_uniform<int>("doNoise", using_noise());
+    Torch::mesh->draw();
+    GAME_STATE->set_uniform<int>("doNoise", 0);
 
     if (oldprog)
         oldprog->use();

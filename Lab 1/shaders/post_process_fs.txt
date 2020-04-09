@@ -115,8 +115,8 @@ void main()
     //if(color.r < 0 || color.g < 0 || color.b < 0)
     //    color = vec4(1,0,1,1);
 
-	//calculate_DOF(unb, bl, d);
-	//calculate_glow(glow);
+	calculate_DOF(unb, bl, d);
+	calculate_glow(glow);
 
     if(isHDR != 0)
 	    toneMap(color);

@@ -1,4 +1,4 @@
-in vec2 g_texcoord;
+in vec2 g_texCoord;
 
 layout(location=0) out vec4 color;
 layout(binding=0) uniform sampler2DArray tex;
@@ -61,7 +61,7 @@ void convert_RGB_to_xyY(inout vec4 c)
 }
 
 void main(){
-    color = texture(tex, vec3(g_texcoord, 0.0));
+    color = texture(tex, vec3(g_texCoord, 0.0));
     color.a *= max( 1.0 - psElapsed * 1.0 / psMaxLife, 0.0);
     if(color.a <= 0.01)
         discard;

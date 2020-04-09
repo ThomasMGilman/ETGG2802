@@ -5,7 +5,8 @@ GameObject::GameObject(vec3 startingPoint,  vec3 scal,
 	bool moving, vec3 vel, 
 	bool dying, float lifetime, 
 	bool rotating, float angleOfRotation, float rotAmount,
-	bool animated, float startingFrame, float animationSpeed)
+	bool animated, float startingFrame, float animationSpeed,
+	bool useNoise)
 {
 	this->scal = scal;
 	this->angle = angleOfRotation;
@@ -19,6 +20,7 @@ GameObject::GameObject(vec3 startingPoint,  vec3 scal,
 	this->animated = animated;
 	this->frameNum = startingFrame;
 	this->animationSpeed = animationSpeed;
+	this->usingNoise = useNoise;
 }
 
 void GameObject::update_world_mat()

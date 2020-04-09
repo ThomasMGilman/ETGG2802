@@ -6,7 +6,7 @@ class GameObject
 private:
 	int lifetime;
 	float angle = 0, rotationAmount = 0, frameNum = 0, animationSpeed = 0.01f;
-	bool rotating, moving, dying, animated, usingStencilBuffer = false, orientationChange = true, hasMesh = false;
+	bool rotating, moving, dying, animated, usingNoise, usingStencilBuffer = false, orientationChange = true, hasMesh = false;
 	vec3 pos, vel, scal;
 	vec4 rotationAxis = vec4(0,0,0,0);
 
@@ -27,7 +27,8 @@ public:
 		bool moving = false, vec3 vel = vec3(0, 0, 0),
 		bool dying = false, float lifetime = 750, 
 		bool rotating = false, float angleOfRotation = 0, float rotAmount = 0.001f,
-		bool animated = false, float startingFrame = 0, float animationSpeed = 0.01f);
+		bool animated = false, float startingFrame = 0, float animationSpeed = 0.01f,
+		bool useNoise = false);
 
 	~GameObject();
 
@@ -42,6 +43,8 @@ public:
 	bool is_rotating() { return this->rotating; };
 
 	bool is_animated() { return this->animated; };
+
+	bool using_noise() { return this->usingNoise; };
 
 	bool has_mesh() { return this->hasMesh; };
 
@@ -76,6 +79,8 @@ public:
 	void set_rotating(bool state) { this->rotating = state; };
 
 	void set_animated(bool state) { this->animated = state; };
+
+	void set_using_noise(bool state) { this->usingNoise = state; };
 
 	/*
 	Actions:

@@ -28,3 +28,5 @@ bullet texture:
 My own creation ( can't you tell? :-)
 
 nova: My own creation, using Gimp
+
+fire: http://pngimg.com/download/6003

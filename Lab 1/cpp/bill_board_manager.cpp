@@ -18,6 +18,7 @@ void BillBoardManager::setup_vao()
         positionBuffer = new Buffer(trash);
         ubo = new Buffer(numObjsAllowed * sizeof(vec4), GL_DYNAMIC_DRAW);
         positionBuffer->bind(GL_ARRAY_BUFFER);
+
         //create vao
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 1, GL_FLOAT, false, 4, 0);
@@ -26,11 +27,13 @@ void BillBoardManager::setup_vao()
     positions.reserve(numObjsAllowed);
 }
 
-BillBoardManager::BillBoardManager(std::shared_ptr<ImageTexture2DArray> diffuse_tex, vec3 size)
+BillBoardManager::BillBoardManager(std::shared_ptr<ImageTexture2DArray> diffuse_tex, vec3 size, bool dies, bool useNoise)
 {
     this->diffuse_texture = diffuse_tex;
     this->size = size;
     this->halfSize = size / 2;
+    this->dying = dies;
+    this->usingNoise = useNoise;
     setup_vao();
 }
 
@@ -43,6 +46,12 @@ BillBoardManager::~BillBoardManager()
 void BillBoardManager::setUniforms()
 {
     prog->setUniform("halfBoardSize", halfSize.xy());
+    prog->setUniform("doNoise", (int)usingNoise);
+}
+
+void BillBoardManager::cleanUniforms()
+{
+    prog->setUniform("doNoise", 0);
 }
 
 void BillBoardManager::checkDirty()
@@ -75,7 +84,6 @@ void BillBoardManager::draw()
         auto oldprog = Program::current;
         this->prog->use();
         this->diffuse_texture->bind(0);
-
         setUniforms();
 
         ubo->bindBase(GL_UNIFORM_BUFFER, 1);
@@ -87,6 +95,8 @@ void BillBoardManager::draw()
               0,                  //Start
               1,                  //How many verts
               positions.size());  //number of instances
+
+        cleanUniforms();
 
         if (oldprog)
             oldprog->use();

@@ -53,6 +53,8 @@ layout(std140, row_major) uniform Uniforms {
 
     // For Noise
     int doNoise;
+    int octaves;
+    float time;
 
     // For BillBoard
     vec2 halfBoardSize;

@@ -9,6 +9,7 @@
 #include <ParticleSystem.h>
 #include <MagicLantern.h>
 #include <PowerUp.h>
+#include <torch.h>
 #include <SkyBox.h>
 
 // Managers
@@ -53,20 +54,20 @@ protected:
     InputManager* inputManager;
     LightManager* lightManager;
     BillBoardManager* BB_BulletManager;
+    BillBoardManager* BB_TorchManager;
 
     // Skybox
     ImageTextureCube envMap{ "skybox-%d.png" };
     SkyBox sBox{ vec3(0,0,0) };
 
     // StandAlone GameObjects
-    Mesh torchMesh{ "torch.glb" };
     Dungeon dungeon{ vec3(0,0,0) };
     MagicLantern magicLantern{ vec3(-2,0,4) };
     Enemy toothyjaws{ vec3(2.5f, 0.5f, 2.2f) };
 
     // GameObject Containers
     std::vector<ParticleSystem> explosions;
-    std::vector<vec3> torches;
+    std::vector<Torch> torches;
     std::vector <PowerUp> candyCanes{
         PowerUp(vec3(-3, 0, 4)), PowerUp(vec3(5, 0, 10)), 
         PowerUp(vec3(2, 0, 5)), PowerUp(vec3(1, 0, 1)) };

@@ -14,16 +14,19 @@ private:
 
 public:
     vec3 size, halfSize;
-    bool dirty = false;
+    bool dirty = false, dying, usingNoise;
+    float time = 0;
 
     std::vector<vec4> positions, velocities;
     std::vector<int> lifetimes;
     
-    BillBoardManager(std::shared_ptr<ImageTexture2DArray> diffuse_tex, vec3 size);
+    BillBoardManager(std::shared_ptr<ImageTexture2DArray> diffuse_tex, vec3 size, bool dies = true, bool useNoise = false);
 
     ~BillBoardManager();
 
     void setUniforms();
+    
+    void cleanUniforms();
 
     void checkDirty();
 
@@ -33,10 +36,13 @@ public:
     void update(float elapsed, const T& callback)
     {
         dirty = true;
+        time += elapsed;
+        prog->setUniform("time", time * .00001);
         for (int i = 0; i < positions.size(); i++)
-        {
-            lifetimes[i] -= elapsed;
-            if (lifetimes[i] <= 0)
+        {   
+            if (dying)
+                lifetimes[i] -= elapsed;
+            if (dying && lifetimes[i] <= 0)
             {
                 vec3 pos = positions.at(i).xyz();
                 callback(pos);
