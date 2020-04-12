@@ -44,6 +44,8 @@ void GameState::setup_frame_buffers()
     fbo.unsetAsRenderTarget();
     fbo1.setAsRenderTarget(false);
     fbo1.unsetAsRenderTarget();
+    shadowBuffer.setAsRenderTarget(false);
+    shadowBuffer.unsetAsRenderTarget();
 }
 
 void GameState::setup_uniform_map()
@@ -70,6 +72,7 @@ void GameState::setup_uniform_map()
     make_uniform("a_lum_val", 0.2f);
     make_uniform("lum_white", 2.0f);
     make_uniform("doNoise", 0);
+    make_uniform("drawShadow", 0);
 }
 
 void GameState::setup_noise_tables()
@@ -93,6 +96,7 @@ void GameState::debug_output_scene()
 {
     fbo.dump("fbo0");
     fbo1.dump("fbo1");
+    shadowBuffer.dump("shadowBuff");
     this->outputImage = false;
 }
 
@@ -126,14 +130,27 @@ GameState::GameState()
     BB_BulletManager = new BillBoardManager(Bullet(vec3(0), vec3(0)).get_diffuse_texture(), vec3(1));//b_init.get_scale());
     BB_TorchManager = new BillBoardManager(std::make_shared<ImageTexture2DArray>("fire.png"), vec3(.025,.75,1), false, true);
 
+    camera = new Camera(vec3(0, 0.5, 0), vec3(0, 0.5, 1), vec3(0, 1, 0));
     for (unsigned i = 0; i < dungeon.get_num_light_positions(); i++)
     {
         vec3 light_pos = dungeon.get_light_position(i);
-        set_light_position(i, light_pos, true);
+        vec3 light_dir = lightDirs[i];
+        
+
+        lightManager->setPosition(i, light_pos, true);
+        lightManager->setSpotlight(i, light_dir, 60, 90);
+        lightManager->setColor(i, vec3(1, 1, 1));
+        camera->lookAt(lightManager->getPosition(i), light_dir, vec3(0, 1, 0));
+        lightManager->setViewMatrix(i, camera->viewMatrix);
+        lightManager->setProjMatrix(i, camera->projMatrix);
+        lightManager->setLightYon(i, 100);
+        lightManager->setLightYonMinusHither(i, 100 - camera->hither);
+        lightManager->setLightHither(i, camera->hither);
+
         BB_TorchManager->add(light_pos + vec3(0, .4, 0), vec3(0));
         std::cout << "LIGHT " << i << ": " << light_pos << "\n";
-        set_light_color(i, vec3(1, 1, 1));
     }
+    camera->lookAt(vec3(0, 0.5, 0), vec3(0, 0.5, 1), vec3(0, 1, 0));
 }
 
 GameState::~GameState()
@@ -149,6 +166,9 @@ GameState::~GameState()
     // Noise Variables
     delete(permutationTex);
     delete(gradientTex);
+
+    // Camera Objects
+    delete(camera);
 
     // delete stored uniforms
     std::map<std::string, uniformData*>::iterator ud;
@@ -177,7 +197,8 @@ void GameState::set_uniform(std::string uniform_name)
 
 void GameState::set_uniforms()
 {
-    camera.setUniforms();
+    camera->setUniforms();
+
     lightManager->setUniforms();
     std::map<std::string, uniformData*>::iterator uniformEntryPointer = uniformInfo.begin();
     while (uniformEntryPointer != uniformInfo.end())
@@ -235,21 +256,15 @@ void GameState::update(float elapsed)
     }
 }
 
-void GameState::draw()
+void GameState::draw_objects(bool shadowPass)
 {
-    mainProg.use();                     // Set main Program Shader
-    fbo.setAsRenderTarget(true);        // Set FBO as draw target
-    set_uniforms();                     // Set Uniforms
-    envMap.bind(4);                     // Bind SkyBox
-    permutationTex->bind(8);            // Bind Permutation Table
-    gradientTex->bind(9);               // Bind Gradient Table
+    set_uniform<int>("drawShadow", shadowPass);
+    set_uniforms();           // Set Uniforms
 
     dungeon.draw();                     // Dungeon
-
+    
     BB_TorchManager->draw();            // Torch Flames
-
     magicLantern.draw();                // Lantern
-
     toothyjaws.draw();                  // ToothyJaws
 
     //for (auto& torch : torches)
@@ -260,10 +275,26 @@ void GameState::draw()
     for (auto& x : explosions)          // Explosions
         x.draw();
 
-    set_uniform<int>("doGlow", 1);
+    set_uniform<int>("doGlow", !shadowPass);
     for (auto& cane : candyCanes)       // CandyCanes
         cane.draw();
     set_uniform<int>("doGlow", 0);
+}
+
+void GameState::draw()
+{
+    mainProg.use();                     // Set main Program Shader
+    envMap.bind(4);                     // Bind SkyBox
+    permutationTex->bind(8);            // Bind Permutation Table
+    gradientTex->bind(9);               // Bind Gradient Table
+
+    shadowBuffer.setAsRenderTarget(true);
+    draw_objects(true);
+    shadowBuffer.unsetAsRenderTarget();
+    shadowBuffer.texture->bind(5);
+    
+    fbo.setAsRenderTarget(true);        // Set FBO as draw target
+    draw_objects();
 
     envMap.bind(0);
     skyBoxProg.use();               // Set SkyBox Program Shader      

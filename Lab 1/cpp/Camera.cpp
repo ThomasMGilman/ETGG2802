@@ -1,12 +1,13 @@
 #include <stdafx.h>
 #include "Camera.h"
 
-Camera::Camera(vec3 eye, vec3 coi, vec3 up )
+Camera::Camera(vec3 eye, vec3 coi, vec3 up, float fovAngleD)
 {
     this->lookAt(eye,coi,up);
     this->aspectRatio = 1.0f;
     this->hither = 0.1f;
     this->yon = 100.0f;
+    this->yonMinusHither = yon - hither;
     this->P = 1.0f + 2.0f * this->yon / (this->hither - this->yon);
     this->Q = 2.0f * this->hither * this->yon / (this->hither - this->yon);
     this->fov_v = radians(30.0f);
@@ -55,13 +56,17 @@ void Camera::updateProjMatrix()
     );
 }
     
-void Camera::setUniforms()
+void Camera::setUniforms(std::string prefix)
 {
-    Program::setUniform("viewMatrix", this->viewMatrix);
-    Program::setUniform("projMatrix", this->projMatrix);
-    Program::setUniform("eyePos",this->eye.xyz());
-    Program::setUniform("P", P);
-    Program::setUniform("Q", Q);
+    Program::setUniform(prefix + "viewMatrix", this->viewMatrix);
+    Program::setUniform(prefix + "projMatrix", this->projMatrix);
+    Program::setUniform(prefix + "eyePos",this->eye.xyz());
+    Program::setUniform(prefix + "P", this->P);
+    Program::setUniform(prefix + "Q", this->Q);
+    Program::setUniform(prefix + "hither", this->hither);
+    Program::setUniform(prefix + "yon", this->yon);
+    Program::setUniform(prefix + "yonMinusHither", this->yonMinusHither);
+
 }
 
 void Camera::strafe(float dr, float du, float dl)

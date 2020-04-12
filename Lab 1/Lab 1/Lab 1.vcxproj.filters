@@ -206,9 +206,6 @@
     <Text Include="..\shaders\uniforms.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="..\shaders\fire_fs.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\cpp\bill_board_manager.cpp">

@@ -8,12 +8,19 @@ in vec3 v_tangent;
 
 layout(location=0) out vec4 color;
 layout(location=1) out vec4 glow;
+layout(location=2) out vec4 shadow2;
+layout(location=3) out vec4 shadow3;
+layout(location=4) out vec4 shadow4;
+layout(location=5) out vec4 shadow5;
+layout(location=6) out vec4 shadow6;
+layout(location=7) out vec4 shadow7;
 
 layout(binding=0) uniform sampler2DArray diffuseTexture;
 layout(binding=1) uniform sampler2DArray emissionTexture;
 layout(binding=2) uniform sampler2DArray metallicRoughnessTexture;
 layout(binding=3) uniform sampler2DArray bumpmapTexture;
 layout(binding=4) uniform samplerCube envMap;
+layout(binding=5) uniform sampler2DArray shadowTexture;
 
 layout(binding=8) uniform sampler2DArray permutationTex;
 layout(binding=9) uniform sampler2DArray gradientTex;
@@ -484,56 +491,101 @@ void computeTotalIllumination(float Rho, float Mu, vec3 V, vec3 N, vec3 baseColo
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void main(){
-    if( forceStencilColorFlag != 0.0)
+    if(drawShadow > 0)
     {
-        color = forceStencilColor;
-        glow = vec4(0);
-        return;
-    }
-    // Get Normal and calculate surface Normal
-    vec3 N = normalize(v_normal);
-    calculateBumpNormal(N);
-
-    // Get LookVector and ReflectionVector
-    vec3 V = normalize(eyePos - v_worldPos);
-    vec3 VR = reflect(-V,N);
-
-    // Set Base Variables to use for Color
-    vec3 totalDiffuseColor = vec3(0);
-    vec3 totalSpecularColor = vec3(0);
-    vec3 reflColor = texture(envMap, VR, roughness).rgb;
-
-    // Get Textures
-    vec4 diffuseTextureColor = texture( diffuseTexture, vec3(v_texcoord,sliceNumber) );
-
-    if(diffuseTextureColor.a < 0.01)
-        discard;
-
-    vec4 emissionTextureColor = texture( emissionTexture, vec3(v_texcoord,sliceNumber) );
-    vec4 roughnessTextureColor = texture( metallicRoughnessTexture, vec3(v_texcoord,sliceNumber) );
-
-    float Rho = roughness * roughnessTextureColor.g;    //Roughness factor
-    float Mu = metallicity * roughnessTextureColor.b;     //Metallicity factor
-
-    computeTotalIllumination(Rho, Mu, V, N, diffuseTextureColor.rgb, totalDiffuseColor, totalSpecularColor);
-    color.rgb = ambientColor * diffuseTextureColor.rgb +
-              totalDiffuseColor  + 
-              totalSpecularColor +	//optional: multiply specular by texColor
-              emissionTextureColor.rgb +
-              (metallicity * reflColor);
-    
-
-    color.a = diffuseTextureColor.a;
-    if(isHDR > 0)
-        convert_RGB_to_xyY(color);
-
-    if(doGlow > 0)
-    {
-        glow.rgb = emissionTextureColor.rgb + totalSpecularColor;
-        glow.a = diffuseTextureColor.a;
-        if(isHDR > 0)
-            convert_RGB_to_xyY(glow);
+        for(int i = 0; i < NUM_LIGHTS; i++)
+        {
+            float d = ((-1 * lightPositions[i].z) - light_hithers[i]) / (light_yonMinusHithers[i]);
+            if(i == 0)
+                color = vec4(d, d, d, 1.0);
+            else if(i == 1)
+                glow = vec4(d, d, d, 1.0);
+            else if(i == 2)
+                shadow2 = vec4(d, d, d, 1.0);
+            else if(i == 3)
+                shadow3 = vec4(d, d, d, 1.0);
+            else if(i == 4)
+                shadow4 = vec4(d, d, d, 1.0);
+            else if(i == 5)
+                shadow5 = vec4(d, d, d, 1.0);
+            else if(i == 6)
+                shadow6 = vec4(d, d, d, 1.0);
+            else
+                shadow7 = vec4(d, d, d, 1.0);
+        }
     }
     else
-        glow = vec4(0);
+    {
+        // Get Textures
+        vec4 diffuseTextureColor = texture( diffuseTexture, vec3(v_texcoord,sliceNumber) );
+        vec4 emissionTextureColor = texture( emissionTexture, vec3(v_texcoord,sliceNumber) );
+        vec4 roughnessTextureColor = texture( metallicRoughnessTexture, vec3(v_texcoord,sliceNumber) );
+
+        // Get Shadow tex Sample position
+        bool lit = false;
+        for(int i = 0; i < NUM_LIGHTS; i++)
+        {
+            vec4 p = vec4(v_worldPos.xyz, 1.0) * light_viewMatrices[i];
+            float disFromLight = -p.z;
+            p *= light_projMatrices[i];
+            p.xy = ((p.xy / p.w) + vec2(1)) * 0.5;
+            float t = texture(shadowTexture, vec3(p.xy, i)).r;
+            float shadowBuffDis = light_hithers[i] + t * light_yonMinusHithers[i];
+            bvec3 conditions = bvec3(
+                disFromLight < light_hithers[i],
+                disFromLight > light_yons[i],
+                disFromLight > shadowBuffDis + 0.01
+            );
+            if(!any(conditions))
+                lit = true;
+        }
+        // If spot not lit, shadow it
+        if(!lit)
+            diffuseTextureColor.rgb *= 0.1;
+
+        if( forceStencilColorFlag != 0.0)
+        {
+            color = forceStencilColor;
+            glow = vec4(0);
+            return;
+        }
+        // Get Normal and calculate surface Normal
+        vec3 N = normalize(v_normal);
+        calculateBumpNormal(N);
+
+        // Get LookVector and ReflectionVector
+        vec3 V = normalize(eyePos - v_worldPos);
+        vec3 VR = reflect(-V,N);
+
+        // Set Base Variables to use for Color
+        vec3 totalDiffuseColor = vec3(0);
+        vec3 totalSpecularColor = vec3(0);
+        vec3 reflColor = texture(envMap, VR, roughness).rgb;
+
+        float Rho = roughness * roughnessTextureColor.g;    //Roughness factor
+        float Mu = metallicity * roughnessTextureColor.b;     //Metallicity factor
+
+        computeTotalIllumination(Rho, Mu, V, N, diffuseTextureColor.rgb, totalDiffuseColor, totalSpecularColor);
+            color.rgb = ambientColor * diffuseTextureColor.rgb +
+            totalDiffuseColor  + 
+            totalSpecularColor +	//optional: multiply specular by texColor
+            emissionTextureColor.rgb +
+            (metallicity * reflColor);
+    
+        color.a = diffuseTextureColor.a;
+
+        if(doGlow > 0)
+        {
+            glow.rgb = emissionTextureColor.rgb + totalSpecularColor;
+            glow.a = diffuseTextureColor.a;
+        }
+        else
+            glow = vec4(0);
+    }
+
+    if(isHDR > 0)
+    {
+        convert_RGB_to_xyY(color);
+        convert_RGB_to_xyY(glow);
+    }
 }

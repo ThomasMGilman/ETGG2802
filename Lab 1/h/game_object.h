@@ -54,23 +54,23 @@ public:
 
 	vec3 get_pos() { return this->pos; };
 
-	vec3 set_pos(vec3 newP) { this->pos = newP; orientationChange = true; };
+	void set_pos(vec3 newP) { this->pos = newP; orientationChange = true; };
 
 	vec3 get_scale() { return this->scal; };
 
-	vec3 set_scale(vec3 newS) { this->scal = newS; orientationChange = true; };
+	void set_scale(vec3 newS) { this->scal = newS; orientationChange = true; };
 
 	vec3 get_velocity() { return this->vel; };
 
-	vec3 set_velocity(vec3 newV) { this->vel = newV; orientationChange = true; };
+	void set_velocity(vec3 newV) { this->vel = newV; orientationChange = true; };
 
 	vec3 get_stencil_scale() { return this->stencilScale; };
 
-	vec3 set_stencil_scale(vec3 newS) { this->stencilScale = newS; };
+	void set_stencil_scale(vec3 newS) { this->stencilScale = newS; };
 
 	mat4 get_world_mat() { return this->worldMat; }
 
-	mat4 set_world_mat(mat4 newWM4) { this->worldMat = newWM4; }
+	void set_world_mat(mat4 newWM4) { this->worldMat = newWM4; }
 
 	void set_moving(bool state) { this->moving = state; };
 

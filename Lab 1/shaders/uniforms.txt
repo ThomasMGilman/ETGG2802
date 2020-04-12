@@ -2,25 +2,40 @@
 
 layout(std140, row_major) uniform Uniforms {
 
+    ////////////////////////////////////////
+    /// world_Position
+    ////////////////////////////////////////
     mat4 worldMatrix;
-    mat4 viewMatrix;
-    mat4 projMatrix;
+    
+    ////////////////////////////////////////
+    /// Animation
+    ////////////////////////////////////////
     float sliceNumber;
 
-    //for particle systems
+    ////////////////////////////////////////
+    /// for particle systems
+    ////////////////////////////////////////
     vec3 psOrigin;
     float psElapsed;
     float psMaxLife;
 
+    ////////////////////////////////////////
+    /// Lights and Color
+    ////////////////////////////////////////
+    vec3 attenuation;
+    vec3 ambient;
+    float light_yons[NUM_LIGHTS];
+    float light_hithers[NUM_LIGHTS];
+    float light_yonMinusHithers[NUM_LIGHTS];
     vec4 lightPositions[NUM_LIGHTS];
     vec4 lightColors[NUM_LIGHTS];
     vec4 spotlightDirections[NUM_LIGHTS];
+    mat4 light_viewMatrices[NUM_LIGHTS];
+    mat4 light_projMatrices[NUM_LIGHTS];
 
-    vec3 eyePos;
-    vec3 attenuation;
-    vec3 ambient;
-
-    //for coloring in fs.txt
+    ////////////////////////////////////////
+    /// for coloring in fs.txt
+    ////////////////////////////////////////
     int isHDR;
     float metallicity;
     float roughness;
@@ -29,38 +44,64 @@ layout(std140, row_major) uniform Uniforms {
     float gamma;
     float exposure;
 
-    // From Camera
+    ////////////////////////////////////////
+    /// From Camera
+    ////////////////////////////////////////
+    int drawShadow;
+    float hither;
+    float yon;
+    float yonMinusHither;
     float Q;
     float P;
+    vec3 eyePos;
+    mat4 viewMatrix;
+    mat4 projMatrix;
+
+    ////////////////////////////////////////
+    /// Smooth distance drawing
+    ////////////////////////////////////////
     float focalDistance;
     float focalSmoothStepMin;
     float focalSmoothStepMax;
 
-    // Tone Mappping
+    ////////////////////////////////////////
+    /// Tone Mappping
+    ////////////////////////////////////////
     float toneMinValue;
     float toneMaxValue;
 
-    // HDR
+    ////////////////////////////////////////
+    /// HDR
+    ////////////////////////////////////////
     float a_lum_val;
     float lum_white;
-
-    // For Bluring
+    ////////////////////////////////////////
+    /// For Bluring
+    ////////////////////////////////////////
     int doRadialBlur;
 
-    // For Glow
+    ////////////////////////////////////////
+    /// For Glow
+    ////////////////////////////////////////
     int doGlow;
     float glowThreshold;
 
-    // For Noise
+    ////////////////////////////////////////
+    /// For Noise
+    ////////////////////////////////////////
     int doNoise;
     int octaves;
     float time;
 
-    // For BillBoard
+    ////////////////////////////////////////
+    /// For BillBoard
+    ////////////////////////////////////////
     vec2 halfBoardSize;
     vec2 billBoardSize;
 
-    // For StencilBuffer
+    ////////////////////////////////////////
+    /// For StencilBuffer
+    ////////////////////////////////////////
     float forceStencilColorFlag;
     vec4 forceStencilColor;
 };

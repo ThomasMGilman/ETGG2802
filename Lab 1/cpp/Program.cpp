@@ -88,6 +88,16 @@ class Program::UniformSetter{
     virtual void set(const mat4& ){ 
         throw std::runtime_error("Bad type when setting uniform "+name+": got mat4; expected "+getTypeName() );
     }
+    virtual void set(const std::vector<mat2>&) {
+        throw std::runtime_error("Bad type when setting uniform " + name + ": got array of mat2; expected " + getTypeName());
+    }
+    virtual void set(const std::vector<mat3>&) {
+        throw std::runtime_error("Bad type when setting uniform " + name + ": got array of mat3; expected " + getTypeName());
+    }
+    virtual void set(const std::vector<mat4>&) {
+        throw std::runtime_error("Bad type when setting uniform " + name + ": got array of mat4; expected " + getTypeName());
+    }
+
     void doSet(const void* p, size_t count){
         if( this->numBytes != count ){
             throw std::runtime_error("Expected "+std::to_string(this->numBytes)+" but got "+std::to_string(count)+" for "+name);
@@ -225,7 +235,7 @@ namespace {
     class Mat2Setter : public Program::UniformSetter{
       public:
         Mat2Setter( std::string name, unsigned offset, unsigned location, GLenum type, unsigned size):
-            UniformSetter( name,offset,location,2*16,type,size)    //2*16 because one vec4 per row
+            UniformSetter( name,offset,location,32,type,size)    //2*16 = 32 because one vec4 for 2 rows
         {
         }
         virtual std::string getTypeName() override {
@@ -242,7 +252,7 @@ namespace {
     class Mat3Setter : public Program::UniformSetter{
       public:
         Mat3Setter( std::string name, unsigned offset,  unsigned location,   GLenum type, unsigned size):
-            UniformSetter( name,offset,location,3*16,type,size)    //3*16 because one vec4 per row
+            UniformSetter( name,offset,location,48,type,size)    //3*16 = 48 because one vec4 for 3 rows
         {
         }
         virtual std::string getTypeName() override {
@@ -259,7 +269,7 @@ namespace {
     class Mat4Setter : public Program::UniformSetter{
       public:
         Mat4Setter( std::string name, unsigned offset, unsigned location,  GLenum type, unsigned size):
-            UniformSetter( name,offset,location,4*16,type,size)    
+            UniformSetter( name,offset,location,64,type,size)       // 4*16 = 64 because one vec4 for 4 rows 
         {
         }
         virtual std::string getTypeName() override {
@@ -270,6 +280,69 @@ namespace {
                 glUniformMatrix4fv( location, 1, true, v.data().data() );
             else
                 doSet( &v, sizeof(v) );
+        }
+    };
+
+    class Mat4ArraySetter : public Program::UniformSetter {
+    public:
+        Mat4ArraySetter(std::string name, unsigned offset, unsigned location, GLenum type, unsigned size) :
+            UniformSetter(name, offset, location, size * 64, type, size) // 4 vec4 per row *  size of array
+        {
+        }
+        virtual std::string getTypeName() override {
+            return "array of mat4";
+        }
+        virtual void set(const std::vector<mat4>& v) override {
+            if (v.size() != arraySize) {
+                throw std::runtime_error("Array size mismatch: Got " + std::to_string(v.size()) + " but shader expects " +
+                    std::to_string(arraySize));
+            }
+            if (location != (unsigned)-1)
+                glUniformMatrix4fv(location, arraySize, true, (float*)v.data());
+            else
+                doSet(v.data(), v.size() * sizeof(v[0]));
+        }
+    };
+
+    class Mat3ArraySetter : public Program::UniformSetter {
+    public:
+        Mat3ArraySetter(std::string name, unsigned offset, unsigned location, GLenum type, unsigned size) :
+            UniformSetter(name, offset, location, size * 48, type, size) // 3 vec3 per row *  size of array contains padding
+        {
+        }
+        virtual std::string getTypeName() override {
+            return "array of mat3";
+        }
+        virtual void set(const std::vector<mat3>& v) override {
+            if (v.size() != arraySize) {
+                throw std::runtime_error("Array size mismatch: Got " + std::to_string(v.size()) + " but shader expects " +
+                    std::to_string(arraySize));
+            }
+            if (location != (unsigned)-1)
+                glUniformMatrix3fv(location, arraySize, true, (float*)v.data());
+            else
+                doSet(v.data(), v.size() * sizeof(v[0]));
+        }
+    };
+
+    class Mat2ArraySetter : public Program::UniformSetter {
+    public:
+        Mat2ArraySetter(std::string name, unsigned offset, unsigned location, GLenum type, unsigned size) :
+            UniformSetter(name, offset, location, size*32, type, size) // 2 vec2 per row *  size of array
+        {
+        }
+        virtual std::string getTypeName() override {
+            return "array of mat2";
+        }
+        virtual void set(const std::vector<mat2>& v) override {
+            if (v.size() != arraySize) {
+                throw std::runtime_error("Array size mismatch: Got " + std::to_string(v.size()) + " but shader expects " +
+                    std::to_string(arraySize));
+            }
+            if (location != (unsigned)-1)
+                glUniformMatrix2fv(location, arraySize, true, (float*) v.data());
+            else
+                doSet(v.data(), v.size() * sizeof(v[0]));
         }
     };
 
@@ -550,6 +623,9 @@ namespace {
                 }
             } else {
                 switch(types[i]){
+                    case GL_FLOAT_MAT4:  u = new Mat4ArraySetter{ name, (unsigned)offsets[i], location,  (unsigned)types[i], (unsigned)sizes[i] }; break;
+                    case GL_FLOAT_MAT3:  u = new Mat3ArraySetter{ name, (unsigned)offsets[i], location,  (unsigned)types[i], (unsigned)sizes[i] }; break;
+                    case GL_FLOAT_MAT2:  u = new Mat2ArraySetter  {name, (unsigned)offsets[i], location,  (unsigned)types[i], (unsigned)sizes[i] }; break;
                     case GL_FLOAT_VEC4:  u = new Vec4ArraySetter  {name, (unsigned)offsets[i], location,  (unsigned)types[i], (unsigned)sizes[i] }; break;
                     case GL_FLOAT_VEC3:  u = new Vec3ArraySetter  {name, (unsigned)offsets[i], location,  (unsigned)types[i], (unsigned)sizes[i] }; break;
                     case GL_FLOAT_VEC2:  u = new Vec2ArraySetter  {name, (unsigned)offsets[i], location,  (unsigned)types[i], (unsigned)sizes[i] }; break;
@@ -769,6 +845,18 @@ void Program::setUniform(std::string name, const mat3& value ){
     u->set(value);
 }
 void Program::setUniform(std::string name, const mat4& value ){
+    auto u = getSetter(name);
+    u->set(value);
+}
+void Program::setUniform(std::string name, const std::vector<mat4>& value) {
+    auto u = getSetter(name);
+    u->set(value);
+}
+void Program::setUniform(std::string name, const std::vector<mat3>& value) {
+    auto u = getSetter(name);
+    u->set(value);
+}
+void Program::setUniform(std::string name, const std::vector<mat2>& value) {
     auto u = getSetter(name);
     u->set(value);
 }

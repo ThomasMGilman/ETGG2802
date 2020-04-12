@@ -18,6 +18,16 @@ void InputManager::check_keys_down(float elapsed)
         mainCamera->turn(-0.001f * elapsed * mainCamera->speedMultiplier);
     if (keySet.count(SDLK_r))
         mainCamera->turn(0.001f * elapsed * mainCamera->speedMultiplier);
+
+    /*/// Move lights around
+    if (keySet.count(SDLK_UP))
+        GAME_STATE->move_selected_light(0, 0, 0.001 * elapsed * mainCamera->speedMultiplier);
+    if (keySet.count(SDLK_DOWN))
+        GAME_STATE->move_selected_light(0, 0, -0.001 * elapsed * mainCamera->speedMultiplier);
+    if (keySet.count(SDLK_LEFT))
+        GAME_STATE->move_selected_light(-0.001 * elapsed * mainCamera->speedMultiplier, 0, 0);
+    if (keySet.count(SDLK_RIGHT))
+        GAME_STATE->move_selected_light(0.001 * elapsed * mainCamera->speedMultiplier, 0, 0);*/
 }
 
 void InputManager::key_down(int k, float elapsed)
@@ -49,30 +59,20 @@ void InputManager::key_down(int k, float elapsed)
         if (k == SDLK_F3 && *dataToManipulate < (float)MAX_AMBIENT_COLOR)
             *dataToManipulate += .01f;
     }
-    if (GAME_STATE->contains_uniform("shininess"))
-    {
-        dataToManipulate = GAME_STATE->get_uniform("shininess");
-        if (k == SDLK_F4 && *dataToManipulate > (float)MIN_SHININESS)
-            *dataToManipulate -= .1f;
-        if (k == SDLK_F5 && *dataToManipulate < (float)MAX_SHININESS)
-            *dataToManipulate += .1f;
-    }
-    if (GAME_STATE->contains_uniform("metallicity"))
-    {
-        dataToManipulate = GAME_STATE->get_uniform("metallicity");
-        if (k == SDLK_F6 && *dataToManipulate > (float)MIN_METALLICITY)
-            *dataToManipulate -= .1f;
-        if (k == SDLK_F7 && *dataToManipulate < (float)MAX_METALLICITY)
-            *dataToManipulate += .1f;
-    }
-    if (GAME_STATE->contains_uniform("roughness"))
-    {
-        dataToManipulate = GAME_STATE->get_uniform("roughness");
-        if (k == SDLK_F8 && *dataToManipulate > (float)MIN_ROUGHNESS)
-            *dataToManipulate -= .1f;
-        if (k == SDLK_F9)//&& globs->roughness < MAX_ROUGHNESS)
-            *dataToManipulate += .1f;
-    }
+
+    if (k == SDLK_F4)
+        GAME_STATE->turn_all_lights(0.1f);
+    if (k == SDLK_F5)
+        GAME_STATE->turn_selected_light(-0.1f);
+    if (k == SDLK_F6)
+        GAME_STATE->turn_selected_light(0.1f);
+    if (k == SDLK_F7)
+        GAME_STATE->cycle_light_bkwrd();
+    if (k == SDLK_F8)
+        GAME_STATE->cycle_light_fwrd();
+    if (k == SDLK_F9)
+        GAME_STATE->debup_print_light_info();
+
     if (GAME_STATE->contains_uniform("blurMultiplier"))
     {
         dataToManipulate = GAME_STATE->get_uniform("blurMultiplier");

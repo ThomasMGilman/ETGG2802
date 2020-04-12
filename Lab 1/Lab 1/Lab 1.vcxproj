@@ -75,7 +75,6 @@
     <Text Include="..\shaders\bill_board_fs.txt" />
     <Text Include="..\shaders\bill_board_gs.txt" />
     <Text Include="..\shaders\bill_board_vs.txt" />
-    <Text Include="..\shaders\fire_fs.txt" />
     <Text Include="..\shaders\main_fs.txt" />
     <Text Include="..\shaders\main_vs.txt" />
     <Text Include="..\shaders\particle_system_fs.txt" />

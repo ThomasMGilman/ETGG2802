@@ -47,6 +47,9 @@ class Program{
     static void setUniform(std::string name, const mat2& value );
     static void setUniform(std::string name, const mat3& value );
     static void setUniform(std::string name, const mat4& value );
+    static void setUniform(std::string name, const std::vector<mat4>& value);
+    static void setUniform(std::string name, const std::vector<mat3>& value);
+    static void setUniform(std::string name, const std::vector<mat2>& value);
     static void setUniform(std::string name, const std::vector<vec4>& value );
     static void setUniform(std::string name, const std::vector<vec3>& value );
     static void setUniform(std::string name, const std::vector<vec2>& value );

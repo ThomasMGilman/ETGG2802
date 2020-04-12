@@ -12,7 +12,7 @@ public:
 
 	int get_num_light_positions() { return mesh->lightPositions.size(); }
 
-	vec3 get_light_position(int index) { if(index < get_num_light_positions()) return mesh->lightPositions[index]; }
+	vec3 get_light_position(int index) { if(index < get_num_light_positions() && index >= 0) return mesh->lightPositions[index]; }
 
 	void draw() override;
 

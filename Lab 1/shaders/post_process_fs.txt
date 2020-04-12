@@ -4,6 +4,12 @@ layout(location=0) out vec4 color;
 layout(binding=0) uniform sampler2DArray unblurred;	
 layout(binding=1) uniform sampler2DArray glow;		    // from first fbo on slice 1
 layout(binding=2) uniform sampler2DArray blurred;		// from second fbo on slice 0
+
+// 3,4,5 Not Being used
+layout(binding=3) uniform sampler2DArray bumpmapTexture;
+layout(binding=4) uniform samplerCube envMap;
+layout(binding=5) uniform sampler2DArray shadowTexture;
+
 layout(binding=16) uniform sampler2DArray depth;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////// Color Space Conversions
