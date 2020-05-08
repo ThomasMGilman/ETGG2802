@@ -153,9 +153,6 @@
     <ClInclude Include="..\h\TextureCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\h\uniform_data.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\h\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -163,9 +160,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\h\Zip.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\h\torch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -177,6 +171,9 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="..\shaders\bill_board_vs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\fire_fs.txt">
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="..\shaders\main_fs.txt">
@@ -195,6 +192,15 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="..\shaders\post_process_vs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\shadow_fs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\shadow_gs.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\shaders\shadow_vs.txt">
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="..\shaders\sky_box_fs.txt">
@@ -316,16 +322,10 @@
     <ClCompile Include="..\cpp\TextureCube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\cpp\uniform_data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\cpp\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\cpp\Zip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cpp\torch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

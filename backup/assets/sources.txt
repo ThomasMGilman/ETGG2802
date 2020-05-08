@@ -1,0 +1,32 @@
+file: ceiling.svg, floor.png, bricks2.svg, floor.svg, bricks2.png, white.png, ceiling.png, black.png
+    Made by me in GIMP/Inkscape
+    
+file: dungeon.obj, dungeon.mtl, dungeon.blend, dungeon.obj.mesh, dungeon.blend1
+    Made by me in Blender
+tiles, hero, badguy, bullet: My own creation, using Inkscape and Gimp
+
+flamefractal: My own creation, using Gimp
+
+hst_carina_ngc3372_006.jpg: From NASA: The Carina nebula
+    https://nssdc.gsfc.nasa.gov/photo_gallery/photogallery-astro-nebula.html
+    These data were collected by the Hubble Heritage Team and
+    Nolan R. Walborn (STScI), Rodolfo H. Barba' (La Plata Observatory, 
+    Argentina), and Adeline Caulet (France).
+    Image Credit: NASA, The Hubble Heritage Team (AURA/STScI)
+    From https://nssdc.gsfc.nasa.gov/photo_gallery/photogallery-faq.html
+        Can I use the images from NSSDCA's Photo Gallery or do I need 
+        to obtain permission from somebody first?
+        Unless otherwise noted, the images presented on NSSDCA's Photo Gallery 
+        are in the public domain. As such, they may be used for any purpose. 
+        NSSDCA does ask, however, that you acknowledge NASA and the NSSDCA as 
+        the supplier of the data. In addition, where the source of the image 
+        (by project or as a specific person) is credited in the text, you 
+        should also acknowledge that, too. 
+
+
+bullet texture:
+My own creation ( can't you tell? :-)
+
+nova: My own creation, using Gimp
+
+fire: http://pngimg.com/download/6003

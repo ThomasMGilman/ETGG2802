@@ -65,8 +65,6 @@
     <ClInclude Include="..\h\Texture.h" />
     <ClInclude Include="..\h\Texture2DArray.h" />
     <ClInclude Include="..\h\TextureCube.h" />
-    <ClInclude Include="..\h\torch.h" />
-    <ClInclude Include="..\h\uniform_data.h" />
     <ClInclude Include="..\h\utils.h" />
     <ClInclude Include="..\h\white_png.h" />
     <ClInclude Include="..\h\Zip.h" />
@@ -75,12 +73,16 @@
     <Text Include="..\shaders\bill_board_fs.txt" />
     <Text Include="..\shaders\bill_board_gs.txt" />
     <Text Include="..\shaders\bill_board_vs.txt" />
+    <Text Include="..\shaders\fire_fs.txt" />
     <Text Include="..\shaders\main_fs.txt" />
     <Text Include="..\shaders\main_vs.txt" />
     <Text Include="..\shaders\particle_system_fs.txt" />
     <Text Include="..\shaders\particle_system_vs.txt" />
     <Text Include="..\shaders\post_process_fs.txt" />
     <Text Include="..\shaders\post_process_vs.txt" />
+    <Text Include="..\shaders\shadow_fs.txt" />
+    <Text Include="..\shaders\shadow_gs.txt" />
+    <Text Include="..\shaders\shadow_vs.txt" />
     <Text Include="..\shaders\sky_box_fs.txt" />
     <Text Include="..\shaders\sky_box_vs.txt" />
     <Text Include="..\shaders\uniforms.txt" />
@@ -124,8 +126,6 @@
     <ClCompile Include="..\cpp\Texture.cpp" />
     <ClCompile Include="..\cpp\Texture2DArray.cpp" />
     <ClCompile Include="..\cpp\TextureCube.cpp" />
-    <ClCompile Include="..\cpp\torch.cpp" />
-    <ClCompile Include="..\cpp\uniform_data.cpp" />
     <ClCompile Include="..\cpp\utils.cpp" />
     <ClCompile Include="..\cpp\Zip.cpp" />
   </ItemGroup>
@@ -190,6 +190,11 @@
     <LibraryPath>C:\sdl_Libs\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)cpp;$(SourcePath)</SourcePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)h;$(IncludePath)</IncludePath>
+    <ReferencePath>$(SolutionDir)shaders;$(ReferencePath)</ReferencePath>
+    <SourcePath>$(SolutionDir)cpp;$(SourcePath)</SourcePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -241,6 +246,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
